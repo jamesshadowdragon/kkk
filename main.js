@@ -358,10 +358,75 @@ camera.position.x;
 purpleLight.position.z=
 camera.position.z;
 
-renderer.render(
-scene,
-camera
-);
+// Clouds
+
+cloudGroup.children.forEach(cloud=>{
+
+cloud.position.x +=
+cloud.userData.speed;
+
+if(cloud.position.x>180){
+
+cloud.position.x=-180;
+
+}
+
+});
+
+
+
+// Day / Night
+
+const cycle=
+clock.elapsedTime*.05;
+
+sun.intensity=
+1.5+
+Math.sin(cycle)*.8;
+
+ambient.intensity=
+.35+
+Math.sin(cycle)*.2;
+
+
+
+scene.fog.density=
+.01+
+Math.cos(cycle)*.002;
+
+
+
+// Portal glow
+
+portalLights.forEach(light=>{
+
+light.intensity=
+light.intensity+
+Math.sin(
+clock.elapsedTime*4
+)*.15;
+
+});
+
+
+
+// Floating logo
+
+logo.rotation.y +=
+0.01;
+
+logo.rotation.x +=
+0.003;
+
+logo.position.y=
+15+
+Math.sin(
+clock.elapsedTime
+)*.8;
+
+
+
+composer.render();
 
 }
 
