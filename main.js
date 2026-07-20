@@ -195,6 +195,32 @@ direction:new THREE.Vector3()
 
 };
 
+const loadingScreen =
+document.getElementById("loading");
+
+let hasHiddenLoadingScreen=false;
+
+function hideLoadingScreen(){
+
+if(hasHiddenLoadingScreen || !loadingScreen)
+return;
+
+hasHiddenLoadingScreen=true;
+
+loadingScreen.classList.add("hidden");
+
+loadingScreen.addEventListener(
+"transitionend",
+()=>{
+
+loadingScreen.remove();
+
+},
+{ once:true }
+);
+
+}
+
 window.addEventListener(
 "resize",
 ()=>{
@@ -443,6 +469,8 @@ clock.elapsedTime
 
 
 composer.render();
+
+hideLoadingScreen();
 
 }
 
