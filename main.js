@@ -10,11 +10,11 @@ const canvas = document.getElementById("bg");
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x050510);
+scene.background = new THREE.Color(0x101820);
 
 scene.fog = new THREE.FogExp2(
-0x050510,
-0.012
+0x101820,
+0.009
 );
 
 const camera = new THREE.PerspectiveCamera(
@@ -73,9 +73,9 @@ window.innerWidth,
 window.innerHeight
 ),
 
-0.9,
-0.4,
-0.15
+0.28,
+0.22,
+0.55
 
 );
 
@@ -141,9 +141,9 @@ sun
 
 const purpleLight =
 new THREE.PointLight(
-0x8b5cf6,
-120,
-60
+0xd6b56d,
+34,
+48
 );
 
 purpleLight.position.set(
@@ -158,9 +158,9 @@ purpleLight
 
 const blueLight =
 new THREE.PointLight(
-0x4f46e5,
-80,
-60
+0x86a3a3,
+28,
+52
 );
 
 blueLight.position.set(
@@ -201,7 +201,7 @@ document.getElementById("loading");
 let hasHiddenLoadingScreen=false;
 
 
-function createTextSprite(text, color="#c4b5fd"){
+function createTextSprite(text, color="#f1d28a"){
 
 const labelCanvas =
 document.createElement("canvas");
@@ -212,7 +212,7 @@ labelCanvas.height=128;
 const context=
 labelCanvas.getContext("2d");
 
-context.fillStyle="rgba(5,5,16,.72)";
+context.fillStyle="rgba(16,24,32,.82)";
 context.fillRect(0,0,labelCanvas.width,labelCanvas.height);
 context.strokeStyle=color;
 context.lineWidth=6;
@@ -530,7 +530,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x202030,
+color:0x334139,
 
 roughness:.95,
 
@@ -559,7 +559,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x34345c,
+color:0x5a655d,
 
 metalness:.35,
 
@@ -582,8 +582,8 @@ world.add(spawnPlatform);
 const grid = new THREE.GridHelper(
 40,
 40,
-0x8b5cf6,
-0x2b2b45
+0xc8b27a,
+0x44504a
 );
 
 grid.position.y=.02;
@@ -593,15 +593,15 @@ world.add(grid);
 const pathMaterial=
 new THREE.MeshStandardMaterial({
 
-color:0x111128,
+color:0x4b5563,
 
-emissive:0x26145f,
+emissive:0x000000,
 
-emissiveIntensity:.35,
+emissiveIntensity:0,
 
-metalness:.25,
+metalness:.08,
 
-roughness:.5
+roughness:.82
 
 });
 
@@ -629,8 +629,8 @@ world.add(walkway);
 });
 
 [
-{ x:0,z:-20,r:42,color:0x1b1733 },
-{ x:0,z:64,r:38,color:0x0b2530 }
+{ x:0,z:-20,r:42,color:0x2f3d34 },
+{ x:0,z:64,r:38,color:0x2b3a40 }
 ].forEach(plaza=>{
 const plazaMesh=new THREE.Mesh(
 new THREE.CylinderGeometry(plaza.r,plaza.r,.16,80),
@@ -645,19 +645,87 @@ plazaMesh.receiveShadow=true;
 world.add(plazaMesh);
 });
 
-const districtSign=createTextSprite("MY WORK ROOMS","#a78bfa");
+const districtSign=createTextSprite("PORTFOLIO STUDIOS","#f1d28a");
 districtSign.position.set(0,14,-32);
 world.add(districtSign);
 
-const sourceSign=createTextSprite("SOURCE CODES","#22d3ee");
+const sourceSign=createTextSprite("SOURCE LIBRARY","#9fc5c0");
 sourceSign.position.set(0,13,70);
 world.add(sourceSign);
 
+const planterMaterial=new THREE.MeshStandardMaterial({
+color:0x3f4a42,
+roughness:.9,
+metalness:.04
+});
+
+const trunkMaterial=new THREE.MeshStandardMaterial({
+color:0x5a3f2b,
+roughness:.86
+});
+
+const canopyMaterial=new THREE.MeshStandardMaterial({
+color:0x49624b,
+roughness:.8
+});
+
+[
+[-50,-36],[-25,-38],[25,-38],[50,-36],
+[-50,-4],[50,-4],[-36,46],[36,46],[-36,82],[36,82]
+].forEach(([x,z])=>{
+const planter=new THREE.Mesh(
+new THREE.CylinderGeometry(3.2,3.5,.7,28),
+planterMaterial
+);
+planter.position.set(x,.4,z);
+planter.receiveShadow=true;
+world.add(planter);
+
+const trunk=new THREE.Mesh(
+new THREE.CylinderGeometry(.35,.5,3.2,12),
+trunkMaterial
+);
+trunk.position.set(x,2.1,z);
+trunk.castShadow=true;
+world.add(trunk);
+
+const canopy=new THREE.Mesh(
+new THREE.SphereGeometry(2.2,18,14),
+canopyMaterial
+);
+canopy.position.set(x,4.2,z);
+canopy.castShadow=true;
+world.add(canopy);
+});
+
+[
+{ x:0,z:-43,w:96,d:1.2 },
+{ x:0,z:7,w:96,d:1.2 },
+{ x:-49,z:-18,w:1.2,d:50 },
+{ x:49,z:-18,w:1.2,d:50 },
+{ x:0,z:43,w:80,d:1.2 },
+{ x:0,z:86,w:80,d:1.2 },
+{ x:-41,z:64,w:1.2,d:43 },
+{ x:41,z:64,w:1.2,d:43 }
+].forEach(wall=>{
+const lowWall=new THREE.Mesh(
+new THREE.BoxGeometry(wall.w,1.1,wall.d),
+new THREE.MeshStandardMaterial({
+color:0x56615a,
+roughness:.7,
+metalness:.08
+})
+);
+lowWall.position.set(wall.x,.62,wall.z);
+lowWall.castShadow=true;
+lowWall.receiveShadow=true;
+world.add(lowWall);
+});
 
 
 // Rocks
 
-for(let i=0;i<32;i++){
+for(let i=0;i<18;i++){
 
 const rock=new THREE.Mesh(
 
@@ -667,7 +735,7 @@ Math.random()*2+.8
 
 new THREE.MeshStandardMaterial({
 
-color:0x45455d,
+color:0x59645d,
 
 roughness:1
 
@@ -705,64 +773,12 @@ world.add(rock);
 
 
 
-// Floating crystals
-
-for(let i=0;i<10;i++){
-
-const crystal=new THREE.Mesh(
-
-new THREE.OctahedronGeometry(
-Math.random()*.7+.4
-),
-
-new THREE.MeshPhysicalMaterial({
-
-color:0x8b5cf6,
-
-emissive:0x8b5cf6,
-
-emissiveIntensity:1,
-
-metalness:1,
-
-roughness:.1,
-
-transparent:true,
-
-opacity:.62
-
-})
-
-);
-
-crystal.position.set(
-
-(Math.random()-.5)*105,
-
-Math.random()*10+4,
-
-(Math.random()-.5)*120
-
-);
-
-crystal.userData.speed=
-
-Math.random()*.8+.2;
-
-world.add(crystal);
-
-interactables.push(crystal);
-
-}
-
-
-
 // Stars
 
 const starGeometry=
 new THREE.BufferGeometry();
 
-const starCount=650;
+const starCount=220;
 
 const starArray=
 new Float32Array(
@@ -804,7 +820,7 @@ size:.8,
 
 transparent:true,
 
-opacity:.3,
+opacity:.16,
 
 depthWrite:false
 
@@ -839,74 +855,39 @@ side:THREE.BackSide
 scene.add(sky);
 
 
-
-// Fog rings
-
-for(let i=0;i<5;i++){
-
-const ring=new THREE.Mesh(
-
-new THREE.TorusGeometry(
-35+i*8,
-.18,
-16,
-220
-),
-
-new THREE.MeshBasicMaterial({
-
-color:0x8b5cf6,
-
-transparent:true,
-
-opacity:.04
-
-})
-
-);
-
-ring.rotation.x=
-Math.PI/2;
-
-ring.position.y=
-i*.25+.05;
-
-world.add(ring);
-
-}
 // ===== PART 3D : PORTFOLIO DISTRICT =====
 
 const projects = [
 
 {
 title:"Combat Framework",
-description:"A responsive Roblox combat framework with abilities, hit detection, cooldowns, and polish-ready feedback loops.",
-color:0x8b5cf6,
-x:-30,
+description:"A production-style Roblox combat framework focused on server-authoritative hit validation, modular ability definitions, cooldown tracking, animation/sound hooks, and responsive client feedback. Built to be extended for melee, ranged, and special-skill game modes without rewriting the core loop.",
+color:0xb08d57,
+x:-36,
 z:-20
 },
 
 {
 title:"Inventory System",
-description:"A scalable item, equipment, and persistence system designed for fast UI updates and reliable player saves.",
-color:0x4f46e5,
-x:0,
+description:"A scalable inventory and equipment architecture with clean item metadata, stack handling, hotbar-ready updates, save/load integration, and UI-friendly events. Designed for reliability, easy item balancing, and minimal data loss during player joins and leaves.",
+color:0x8fa08f,
+x:-12,
 z:-20
 },
 
 {
 title:"RTS Unit AI",
-description:"Commandable unit AI with group movement, targeting behavior, and battlefield-ready state handling.",
-color:0xa855f7,
-x:30,
+description:"A commandable unit-control system featuring selection groups, move/attack orders, target prioritization, state-based behaviors, and formation-friendly pathing. Useful for strategy, tower-defense, and squad-control Roblox experiences.",
+color:0x9a7b4f,
+x:12,
 z:-20
 },
 
 {
 title:"Traffic AI",
-description:"Traffic simulation logic with waypoint routing, spacing, and believable city movement patterns.",
-color:0x6366f1,
-x:60,
+description:"A city traffic simulation using waypoint lanes, stop points, spacing checks, and route decisions to create believable movement. Built for open-world maps that need traffic flow without overwhelming the server or client.",
+color:0x78909c,
+x:36,
 z:-20
 }
 
@@ -929,7 +910,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x2b2b40,
+color:0x525b55,
 
 metalness:.4,
 
@@ -963,7 +944,7 @@ new THREE.BoxGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x19192d,
+color:0x2b3333,
 
 metalness:.25,
 
@@ -987,7 +968,7 @@ world.add(building);
 
 
 
-// Neon edges
+// Architectural trim
 
 const edges=new THREE.LineSegments(
 
@@ -1020,7 +1001,7 @@ new THREE.ConeGeometry(6.2,2.4,4),
 new THREE.MeshStandardMaterial({
 color:project.color,
 emissive:project.color,
-emissiveIntensity:.16,
+emissiveIntensity:.03,
 metalness:.25,
 roughness:.4
 })
@@ -1035,7 +1016,7 @@ new THREE.BoxGeometry(9.5,.18,9.5),
 new THREE.MeshBasicMaterial({
 color:project.color,
 transparent:true,
-opacity:.22
+opacity:.12
 })
 );
 roomGlow.position.set(project.x,1.08,project.z);
@@ -1047,7 +1028,7 @@ new THREE.BoxGeometry(1.1,5.2,.12),
 new THREE.MeshBasicMaterial({
 color:project.color,
 transparent:true,
-opacity:.72
+opacity:.42
 })
 );
 windowStrip.position.set(project.x+stripe,5.4,project.z+4.08);
@@ -1071,7 +1052,7 @@ color:project.color,
 
 transparent:true,
 
-opacity:.8,
+opacity:.45,
 
 side:THREE.DoubleSide
 
@@ -1111,9 +1092,9 @@ const glow=new THREE.PointLight(
 
 project.color,
 
-35,
+9,
 
-20
+16
 
 );
 
@@ -1140,7 +1121,7 @@ const sourceScripts = [
 title:"Datastore Save Script",
 description:"Roblox Lua datastore pattern for loading player data safely, saving on leave, and keeping default values ready.",
 code:"local DataStoreService = game:GetService('DataStoreService')\nlocal store = DataStoreService:GetDataStore('PlayerData')\n-- load, validate, save on PlayerRemoving",
-color:0x22d3ee,
+color:0x9fc5c0,
 x:-28,
 z:62
 },
@@ -1149,7 +1130,7 @@ z:62
 title:"Round System Script",
 description:"Server round loop with intermission, match timer, alive-player checks, and clean reset logic for Roblox games.",
 code:"while true do\n  runIntermission()\n  startRound()\n  finishRound()\nend",
-color:0x38bdf8,
+color:0xb0a06e,
 x:0,
 z:68
 },
@@ -1158,7 +1139,7 @@ z:68
 title:"NPC Pathfinding Script",
 description:"PathfindingService NPC controller with waypoint movement, blocked-path retries, and simple chase behavior.",
 code:"local PathfindingService = game:GetService('PathfindingService')\nlocal path = PathfindingService:CreatePath()\npath:ComputeAsync(npc.Position, target.Position)",
-color:0x06b6d4,
+color:0x88a096,
 x:28,
 z:62
 }
@@ -1170,9 +1151,9 @@ sourceScripts.forEach(script=>{
 const terminal=new THREE.Mesh(
 new THREE.BoxGeometry(10,6,2),
 new THREE.MeshStandardMaterial({
-color:0x071827,
+color:0x263238,
 emissive:script.color,
-emissiveIntensity:.18,
+emissiveIntensity:.04,
 metalness:.45,
 roughness:.32
 })
@@ -1191,7 +1172,7 @@ new THREE.PlaneGeometry(8.2,3.6),
 new THREE.MeshBasicMaterial({
 color:script.color,
 transparent:true,
-opacity:.58,
+opacity:.38,
 side:THREE.DoubleSide
 })
 );
@@ -1201,16 +1182,16 @@ screen.userData.description=terminal.userData.description;
 world.add(screen);
 interactables.push(screen);
 
-const label=createTextSprite(script.title, "#67e8f9");
+const label=createTextSprite(script.title, "#d8c690");
 label.position.set(script.x,8.8,script.z-2.2);
 world.add(label);
 
 const pad=new THREE.Mesh(
 new THREE.CylinderGeometry(6.5,7.5,.65,40),
 new THREE.MeshStandardMaterial({
-color:0x102033,
+color:0x34423f,
 emissive:script.color,
-emissiveIntensity:.22,
+emissiveIntensity:.05,
 metalness:.35,
 roughness:.45
 })
@@ -1219,7 +1200,7 @@ pad.position.set(script.x,.35,script.z);
 pad.receiveShadow=true;
 world.add(pad);
 
-const codeLight=new THREE.PointLight(script.color,24,22);
+const codeLight=new THREE.PointLight(script.color,7,18);
 codeLight.position.set(script.x,7,script.z-3);
 world.add(codeLight);
 
@@ -1227,7 +1208,7 @@ world.add(codeLight);
 
 const sourceGate=new THREE.Mesh(
 new THREE.TorusGeometry(9,.35,24,140),
-new THREE.MeshBasicMaterial({ color:0x22d3ee })
+new THREE.MeshStandardMaterial({ color:0x3d5454, metalness:.2, roughness:.7 })
 );
 sourceGate.position.set(0,7,52);
 world.add(sourceGate);
@@ -1330,7 +1311,7 @@ new THREE.TorusGeometry(
 
 new THREE.MeshBasicMaterial({
 
-color:0x8b5cf6
+color:0x8a744a
 
 })
 
@@ -1359,11 +1340,11 @@ for(let i=-56;i<=56;i+=16){
 
 const light=new THREE.PointLight(
 
-0x8b5cf6,
+0xd6b56d,
 
-5,
+2.5,
 
-8
+7
 
 );
 
@@ -1392,15 +1373,15 @@ new THREE.TorusKnotGeometry(
 
 new THREE.MeshPhysicalMaterial({
 
-color:0x8b5cf6,
+color:0xb08d57,
 
-metalness:1,
+metalness:.65,
 
-roughness:.05,
+roughness:.22,
 
-emissive:0x8b5cf6,
+emissive:0x3a2d16,
 
-emissiveIntensity:1
+emissiveIntensity:.12
 
 })
 
@@ -1582,7 +1563,7 @@ inSourceCodes
 :
 inWorkDistrict
 ?
-"My Work Rooms"
+"Portfolio Studios"
 :
 "Spawn";
 
@@ -1648,7 +1629,7 @@ const cloudGroup=new THREE.Group();
 
 scene.add(cloudGroup);
 
-for(let i=0;i<8;i++){
+for(let i=0;i<4;i++){
 
 const cloud=new THREE.Mesh(
 
