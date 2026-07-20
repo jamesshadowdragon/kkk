@@ -200,6 +200,47 @@ document.getElementById("loading");
 
 let hasHiddenLoadingScreen=false;
 
+
+function createTextSprite(text, color="#c4b5fd"){
+
+const labelCanvas =
+document.createElement("canvas");
+
+labelCanvas.width=512;
+labelCanvas.height=128;
+
+const context=
+labelCanvas.getContext("2d");
+
+context.fillStyle="rgba(5,5,16,.72)";
+context.fillRect(0,0,labelCanvas.width,labelCanvas.height);
+context.strokeStyle=color;
+context.lineWidth=6;
+context.strokeRect(8,8,labelCanvas.width-16,labelCanvas.height-16);
+context.fillStyle=color;
+context.font="700 42px Space Grotesk, sans-serif";
+context.textAlign="center";
+context.textBaseline="middle";
+context.fillText(text,labelCanvas.width/2,labelCanvas.height/2);
+
+const texture=
+new THREE.CanvasTexture(labelCanvas);
+texture.colorSpace=THREE.SRGBColorSpace;
+
+const sprite=
+new THREE.Sprite(
+new THREE.SpriteMaterial({
+map:texture,
+transparent:true
+})
+);
+
+sprite.scale.set(12,3,1);
+
+return sprite;
+
+}
+
 function hideLoadingScreen(){
 
 if(hasHiddenLoadingScreen || !loadingScreen)
@@ -394,6 +435,8 @@ clock.getDelta();
 
 updatePlayer(delta);
 
+updateWorldHud(delta);
+
 purpleLight.position.x=
 camera.position.x;
 
@@ -546,6 +589,46 @@ const grid = new THREE.GridHelper(
 grid.position.y=.02;
 
 world.add(grid);
+
+const pathMaterial=
+new THREE.MeshStandardMaterial({
+
+color:0x111128,
+
+emissive:0x26145f,
+
+emissiveIntensity:.35,
+
+metalness:.25,
+
+roughness:.5
+
+});
+
+[
+{ x:0,z:-10,w:140,d:4 },
+{ x:0,z:12,w:118,d:3 },
+{ x:-45,z:18,w:3,d:38 },
+{ x:45,z:18,w:3,d:38 }
+].forEach(path=>{
+
+const walkway=new THREE.Mesh(
+
+new THREE.BoxGeometry(path.w,.18,path.d),
+
+pathMaterial
+
+);
+
+walkway.position.set(path.x,.14,path.z);
+walkway.receiveShadow=true;
+world.add(walkway);
+
+});
+
+const districtSign=createTextSprite("MY WORK DISTRICT","#a78bfa");
+districtSign.position.set(0,14,-32);
+world.add(districtSign);
 
 
 
@@ -774,6 +857,7 @@ const projects = [
 
 {
 title:"Combat Framework",
+description:"A responsive Roblox combat framework with abilities, hit detection, cooldowns, and polish-ready feedback loops.",
 color:0x8b5cf6,
 x:-30,
 z:-20
@@ -781,6 +865,7 @@ z:-20
 
 {
 title:"Inventory System",
+description:"A scalable item, equipment, and persistence system designed for fast UI updates and reliable player saves.",
 color:0x4f46e5,
 x:0,
 z:-20
@@ -788,6 +873,7 @@ z:-20
 
 {
 title:"RTS Unit AI",
+description:"Commandable unit AI with group movement, targeting behavior, and battlefield-ready state handling.",
 color:0xa855f7,
 x:30,
 z:-20
@@ -795,6 +881,7 @@ z:-20
 
 {
 title:"Traffic AI",
+description:"Traffic simulation logic with waypoint routing, spacing, and believable city movement patterns.",
 color:0x6366f1,
 x:60,
 z:-20
@@ -940,9 +1027,19 @@ project.z+4.05
 
 );
 
+hologram.userData.title=project.title;
+hologram.userData.description=project.description;
+building.userData.title=project.title;
+building.userData.description=project.description;
+
 world.add(hologram);
 
 interactables.push(hologram);
+interactables.push(building);
+
+const projectLabel=createTextSprite(project.title);
+projectLabel.position.set(project.x,12.5,project.z+4.4);
+world.add(projectLabel);
 
 
 
@@ -1199,6 +1296,55 @@ controls.lock();
 });
 
 
+function updateWorldHud(delta){
+
+fpsFrames++;
+fpsTime+=delta;
+
+if(fpsTime>=.5){
+
+fpsCounter.textContent=
+Math.round(fpsFrames/fpsTime);
+
+fpsFrames=0;
+fpsTime=0;
+
+}
+
+const inWorkDistrict=
+camera.position.z<2 &&
+Math.abs(camera.position.x)<78;
+
+currentArea.textContent=
+inWorkDistrict
+?
+"My Work District"
+:
+"Spawn";
+
+raycaster.setFromCamera(
+new THREE.Vector2(0,0),
+camera
+);
+
+const hits=
+raycaster.intersectObjects(interactables,false);
+
+selectedObject=
+hits.length && hits[0].distance<18
+?
+hits[0].object
+:
+null;
+
+interaction.style.opacity=
+selectedObject
+?
+"1"
+:
+"0";
+
+}
 
 window.addEventListener(
 "keydown",
