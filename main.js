@@ -609,7 +609,9 @@ roughness:.5
 { x:0,z:-10,w:140,d:4 },
 { x:0,z:12,w:118,d:3 },
 { x:-45,z:18,w:3,d:38 },
-{ x:45,z:18,w:3,d:38 }
+{ x:45,z:18,w:3,d:38 },
+{ x:0,z:38,w:96,d:4 },
+{ x:0,z:58,w:4,d:40 }
 ].forEach(path=>{
 
 const walkway=new THREE.Mesh(
@@ -626,9 +628,13 @@ world.add(walkway);
 
 });
 
-const districtSign=createTextSprite("MY WORK DISTRICT","#a78bfa");
+const districtSign=createTextSprite("MY WORK ROOMS","#a78bfa");
 districtSign.position.set(0,14,-32);
 world.add(districtSign);
+
+const sourceSign=createTextSprite("SOURCE CODES","#22d3ee");
+sourceSign.position.set(0,13,70);
+world.add(sourceSign);
 
 
 
@@ -684,7 +690,7 @@ world.add(rock);
 
 // Floating crystals
 
-for(let i=0;i<60;i++){
+for(let i=0;i<18;i++){
 
 const crystal=new THREE.Mesh(
 
@@ -706,7 +712,7 @@ roughness:.1,
 
 transparent:true,
 
-opacity:.9
+opacity:.62
 
 })
 
@@ -714,9 +720,9 @@ opacity:.9
 
 crystal.position.set(
 
-(Math.random()-.5)*120,
+(Math.random()-.5)*105,
 
-Math.random()*18+3,
+Math.random()*10+4,
 
 (Math.random()-.5)*120
 
@@ -739,7 +745,7 @@ interactables.push(crystal);
 const starGeometry=
 new THREE.BufferGeometry();
 
-const starCount=7000;
+const starCount=1200;
 
 const starArray=
 new Float32Array(
@@ -781,7 +787,7 @@ size:.8,
 
 transparent:true,
 
-opacity:.9,
+opacity:.45,
 
 depthWrite:false
 
@@ -992,6 +998,45 @@ building.position
 
 world.add(edges);
 
+const roof=new THREE.Mesh(
+new THREE.ConeGeometry(6.2,2.4,4),
+new THREE.MeshStandardMaterial({
+color:project.color,
+emissive:project.color,
+emissiveIntensity:.16,
+metalness:.25,
+roughness:.4
+})
+);
+roof.position.set(project.x,10.2,project.z);
+roof.rotation.y=Math.PI/4;
+roof.castShadow=true;
+world.add(roof);
+
+const roomGlow=new THREE.Mesh(
+new THREE.BoxGeometry(9.5,.18,9.5),
+new THREE.MeshBasicMaterial({
+color:project.color,
+transparent:true,
+opacity:.22
+})
+);
+roomGlow.position.set(project.x,1.08,project.z);
+world.add(roomGlow);
+
+for(let stripe=-2;stripe<=2;stripe+=2){
+const windowStrip=new THREE.Mesh(
+new THREE.BoxGeometry(1.1,5.2,.12),
+new THREE.MeshBasicMaterial({
+color:project.color,
+transparent:true,
+opacity:.72
+})
+);
+windowStrip.position.set(project.x+stripe,5.4,project.z+4.08);
+world.add(windowStrip);
+}
+
 
 
 // Hologram
@@ -1068,6 +1113,109 @@ project.z+3
 world.add(glow);
 
 });
+
+
+// ===== SOURCE CODES AREA =====
+
+const sourceScripts = [
+
+{
+title:"Datastore Save Script",
+description:"Roblox Lua datastore pattern for loading player data safely, saving on leave, and keeping default values ready.",
+code:"local DataStoreService = game:GetService('DataStoreService')\nlocal store = DataStoreService:GetDataStore('PlayerData')\n-- load, validate, save on PlayerRemoving",
+color:0x22d3ee,
+x:-28,
+z:62
+},
+
+{
+title:"Round System Script",
+description:"Server round loop with intermission, match timer, alive-player checks, and clean reset logic for Roblox games.",
+code:"while true do\n  runIntermission()\n  startRound()\n  finishRound()\nend",
+color:0x38bdf8,
+x:0,
+z:68
+},
+
+{
+title:"NPC Pathfinding Script",
+description:"PathfindingService NPC controller with waypoint movement, blocked-path retries, and simple chase behavior.",
+code:"local PathfindingService = game:GetService('PathfindingService')\nlocal path = PathfindingService:CreatePath()\npath:ComputeAsync(npc.Position, target.Position)",
+color:0x06b6d4,
+x:28,
+z:62
+}
+
+];
+
+sourceScripts.forEach(script=>{
+
+const terminal=new THREE.Mesh(
+new THREE.BoxGeometry(10,6,2),
+new THREE.MeshStandardMaterial({
+color:0x071827,
+emissive:script.color,
+emissiveIntensity:.18,
+metalness:.45,
+roughness:.32
+})
+);
+
+terminal.position.set(script.x,4,script.z);
+terminal.castShadow=true;
+terminal.receiveShadow=true;
+terminal.userData.title=script.title;
+terminal.userData.description=script.description+"\n\nPreview:\n"+script.code;
+world.add(terminal);
+interactables.push(terminal);
+
+const screen=new THREE.Mesh(
+new THREE.PlaneGeometry(8.2,3.6),
+new THREE.MeshBasicMaterial({
+color:script.color,
+transparent:true,
+opacity:.58,
+side:THREE.DoubleSide
+})
+);
+screen.position.set(script.x,4.6,script.z-1.05);
+screen.userData.title=terminal.userData.title;
+screen.userData.description=terminal.userData.description;
+world.add(screen);
+interactables.push(screen);
+
+const label=createTextSprite(script.title, "#67e8f9");
+label.position.set(script.x,8.8,script.z-2.2);
+world.add(label);
+
+const pad=new THREE.Mesh(
+new THREE.CylinderGeometry(6.5,7.5,.65,40),
+new THREE.MeshStandardMaterial({
+color:0x102033,
+emissive:script.color,
+emissiveIntensity:.22,
+metalness:.35,
+roughness:.45
+})
+);
+pad.position.set(script.x,.35,script.z);
+pad.receiveShadow=true;
+world.add(pad);
+
+const codeLight=new THREE.PointLight(script.color,24,22);
+codeLight.position.set(script.x,7,script.z-3);
+world.add(codeLight);
+
+});
+
+const sourceGate=new THREE.Mesh(
+new THREE.TorusGeometry(9,.35,24,140),
+new THREE.MeshBasicMaterial({ color:0x22d3ee })
+);
+sourceGate.position.set(0,7,52);
+world.add(sourceGate);
+
+
 
 
 
@@ -1311,14 +1459,22 @@ fpsTime=0;
 
 }
 
+const inSourceCodes=
+camera.position.z>45 &&
+Math.abs(camera.position.x)<45;
+
 const inWorkDistrict=
 camera.position.z<2 &&
 Math.abs(camera.position.x)<78;
 
 currentArea.textContent=
+inSourceCodes
+?
+"Source Codes"
+:
 inWorkDistrict
 ?
-"My Work District"
+"My Work Rooms"
 :
 "Spawn";
 
@@ -1384,7 +1540,7 @@ const cloudGroup=new THREE.Group();
 
 scene.add(cloudGroup);
 
-for(let i=0;i<40;i++){
+for(let i=0;i<14;i++){
 
 const cloud=new THREE.Mesh(
 
