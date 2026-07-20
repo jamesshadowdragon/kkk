@@ -628,6 +628,23 @@ world.add(walkway);
 
 });
 
+[
+{ x:0,z:-20,r:42,color:0x1b1733 },
+{ x:0,z:64,r:38,color:0x0b2530 }
+].forEach(plaza=>{
+const plazaMesh=new THREE.Mesh(
+new THREE.CylinderGeometry(plaza.r,plaza.r,.16,80),
+new THREE.MeshStandardMaterial({
+color:plaza.color,
+metalness:.2,
+roughness:.62
+})
+);
+plazaMesh.position.set(plaza.x,.08,plaza.z);
+plazaMesh.receiveShadow=true;
+world.add(plazaMesh);
+});
+
 const districtSign=createTextSprite("MY WORK ROOMS","#a78bfa");
 districtSign.position.set(0,14,-32);
 world.add(districtSign);
@@ -640,7 +657,7 @@ world.add(sourceSign);
 
 // Rocks
 
-for(let i=0;i<90;i++){
+for(let i=0;i<32;i++){
 
 const rock=new THREE.Mesh(
 
@@ -690,7 +707,7 @@ world.add(rock);
 
 // Floating crystals
 
-for(let i=0;i<18;i++){
+for(let i=0;i<10;i++){
 
 const crystal=new THREE.Mesh(
 
@@ -745,7 +762,7 @@ interactables.push(crystal);
 const starGeometry=
 new THREE.BufferGeometry();
 
-const starCount=1200;
+const starCount=650;
 
 const starArray=
 new Float32Array(
@@ -787,7 +804,7 @@ size:.8,
 
 transparent:true,
 
-opacity:.45,
+opacity:.3,
 
 depthWrite:false
 
@@ -825,7 +842,7 @@ scene.add(sky);
 
 // Fog rings
 
-for(let i=0;i<12;i++){
+for(let i=0;i<5;i++){
 
 const ring=new THREE.Mesh(
 
@@ -842,7 +859,7 @@ color:0x8b5cf6,
 
 transparent:true,
 
-opacity:.08
+opacity:.04
 
 })
 
@@ -1338,7 +1355,7 @@ portals.push(portal);
 
 // ===== PATH LIGHTS =====
 
-for(let i=-60;i<=60;i+=8){
+for(let i=-56;i<=56;i+=16){
 
 const light=new THREE.PointLight(
 
@@ -1424,6 +1441,97 @@ document.getElementById("fpsCounter");
 
 const currentArea =
 document.getElementById("currentArea");
+
+const workSection =
+document.getElementById("workSection");
+
+const closeWorkSection =
+document.getElementById("closeWorkSection");
+
+if(workSection){
+
+workSection.addEventListener(
+"click",
+e=>{
+
+e.stopPropagation();
+
+}
+);
+
+}
+
+if(closeWorkSection && workSection){
+
+closeWorkSection.addEventListener(
+"click",
+e=>{
+
+e.stopPropagation();
+
+workSection.classList.add("closed");
+
+}
+);
+
+}
+
+document.querySelectorAll(".copyCode").forEach(button=>{
+
+button.addEventListener(
+"click",
+e=>{
+
+e.stopPropagation();
+
+const codeBlock=
+document.getElementById(button.dataset.copy);
+
+if(!codeBlock)
+return;
+
+const codeText=
+codeBlock.textContent;
+
+const markCopied=()=>{
+
+button.textContent="Copied";
+
+setTimeout(
+()=>{
+button.textContent="Copy";
+},
+1200
+);
+
+};
+
+const fallbackCopy=()=>{
+
+const textarea=document.createElement("textarea");
+textarea.value=codeText;
+document.body.appendChild(textarea);
+textarea.select();
+document.execCommand("copy");
+textarea.remove();
+markCopied();
+
+};
+
+if(navigator.clipboard){
+
+navigator.clipboard.writeText(codeText).then(markCopied).catch(fallbackCopy);
+
+}else{
+
+fallbackCopy();
+
+}
+
+}
+);
+
+});
 
 let selectedObject=null;
 
@@ -1540,7 +1648,7 @@ const cloudGroup=new THREE.Group();
 
 scene.add(cloudGroup);
 
-for(let i=0;i<14;i++){
+for(let i=0;i<8;i++){
 
 const cloud=new THREE.Mesh(
 
