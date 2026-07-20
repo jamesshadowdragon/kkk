@@ -73,9 +73,9 @@ window.innerWidth,
 window.innerHeight
 ),
 
-0.28,
-0.22,
-0.55
+0.08,
+0.12,
+0.8
 
 );
 
@@ -443,21 +443,6 @@ camera.position.x;
 purpleLight.position.z=
 camera.position.z;
 
-// Clouds
-
-cloudGroup.children.forEach(cloud=>{
-
-cloud.position.x +=
-cloud.userData.speed;
-
-if(cloud.position.x>180){
-
-cloud.position.x=-180;
-
-}
-
-});
-
 
 
 // Day / Night
@@ -478,38 +463,6 @@ Math.sin(cycle)*.2;
 scene.fog.density=
 .01+
 Math.cos(cycle)*.002;
-
-
-
-// Portal glow
-
-portalLights.forEach(light=>{
-
-light.intensity=
-light.intensity+
-Math.sin(
-clock.elapsedTime*4
-)*.15;
-
-});
-
-
-
-// Floating logo
-
-logo.rotation.y +=
-0.01;
-
-logo.rotation.x +=
-0.003;
-
-logo.position.y=
-15+
-Math.sin(
-clock.elapsedTime
-)*.8;
-
-
 
 composer.render();
 
@@ -773,63 +726,6 @@ world.add(rock);
 
 
 
-// Stars
-
-const starGeometry=
-new THREE.BufferGeometry();
-
-const starCount=220;
-
-const starArray=
-new Float32Array(
-starCount*3
-);
-
-for(let i=0;i<starCount;i++){
-
-const j=i*3;
-
-starArray[j]=(Math.random()-.5)*1800;
-
-starArray[j+1]=(Math.random()-.5)*900;
-
-starArray[j+2]=(Math.random()-.5)*1800;
-
-}
-
-starGeometry.setAttribute(
-
-"position",
-
-new THREE.BufferAttribute(
-starArray,
-3
-)
-
-);
-
-const stars=new THREE.Points(
-
-starGeometry,
-
-new THREE.PointsMaterial({
-
-color:0xffffff,
-
-size:.8,
-
-transparent:true,
-
-opacity:.16,
-
-depthWrite:false
-
-})
-
-);
-
-scene.add(stars);
-
 
 
 // Sky dome
@@ -876,7 +772,7 @@ z:-20
 },
 
 {
-title:"RTS Unit AI",
+title:"RTS Unit Logic",
 description:"A commandable unit-control system featuring selection groups, move/attack orders, target prioritization, state-based behaviors, and formation-friendly pathing. Useful for strategy, tower-defense, and squad-control Roblox experiences.",
 color:0x9a7b4f,
 x:12,
@@ -884,7 +780,7 @@ z:-20
 },
 
 {
-title:"Traffic AI",
+title:"Traffic Simulation",
 description:"A city traffic simulation using waypoint lanes, stop points, spacing checks, and route decisions to create believable movement. Built for open-world maps that need traffic flow without overwhelming the server or client.",
 color:0x78909c,
 x:36,
@@ -1037,47 +933,46 @@ world.add(windowStrip);
 
 
 
-// Hologram
+// Information plaque
 
-const hologram=new THREE.Mesh(
+const plaque=new THREE.Mesh(
 
-new THREE.PlaneGeometry(
-6,
-3.5
+new THREE.BoxGeometry(
+6.6,
+3.2,
+.28
 ),
 
-new THREE.MeshBasicMaterial({
+new THREE.MeshStandardMaterial({
 
-color:project.color,
+color:0xe7ddc7,
 
-transparent:true,
+metalness:.08,
 
-opacity:.45,
-
-side:THREE.DoubleSide
+roughness:.72
 
 })
 
 );
 
-hologram.position.set(
+plaque.position.set(
 
 project.x,
 
-9,
+4.2,
 
-project.z+4.05
+project.z+4.16
 
 );
 
-hologram.userData.title=project.title;
-hologram.userData.description=project.description;
+plaque.userData.title=project.title;
+plaque.userData.description=project.description;
 building.userData.title=project.title;
 building.userData.description=project.description;
 
-world.add(hologram);
+world.add(plaque);
 
-interactables.push(hologram);
+interactables.push(plaque);
 interactables.push(building);
 
 const projectLabel=createTextSprite(project.title);
@@ -1086,7 +981,7 @@ world.add(projectLabel);
 
 
 
-// Glow
+// Accent light
 
 const glow=new THREE.PointLight(
 
@@ -1149,7 +1044,7 @@ z:62
 sourceScripts.forEach(script=>{
 
 const terminal=new THREE.Mesh(
-new THREE.BoxGeometry(10,6,2),
+new THREE.BoxGeometry(10,4.2,3.2),
 new THREE.MeshStandardMaterial({
 color:0x263238,
 emissive:script.color,
@@ -1159,7 +1054,7 @@ roughness:.32
 })
 );
 
-terminal.position.set(script.x,4,script.z);
+terminal.position.set(script.x,3.1,script.z);
 terminal.castShadow=true;
 terminal.receiveShadow=true;
 terminal.userData.title=script.title;
@@ -1168,15 +1063,14 @@ world.add(terminal);
 interactables.push(terminal);
 
 const screen=new THREE.Mesh(
-new THREE.PlaneGeometry(8.2,3.6),
-new THREE.MeshBasicMaterial({
-color:script.color,
-transparent:true,
-opacity:.38,
-side:THREE.DoubleSide
+new THREE.BoxGeometry(8.2,3.6,.22),
+new THREE.MeshStandardMaterial({
+color:0xe7ddc7,
+metalness:.05,
+roughness:.78
 })
 );
-screen.position.set(script.x,4.6,script.z-1.05);
+screen.position.set(script.x,4.6,script.z-1.08);
 screen.userData.title=terminal.userData.title;
 screen.userData.description=terminal.userData.description;
 world.add(screen);
@@ -1201,17 +1095,36 @@ pad.receiveShadow=true;
 world.add(pad);
 
 const codeLight=new THREE.PointLight(script.color,7,18);
-codeLight.position.set(script.x,7,script.z-3);
+codeLight.position.set(script.x,5.8,script.z-3);
 world.add(codeLight);
 
 });
 
-const sourceGate=new THREE.Mesh(
-new THREE.TorusGeometry(9,.35,24,140),
-new THREE.MeshStandardMaterial({ color:0x3d5454, metalness:.2, roughness:.7 })
+const libraryHeader=new THREE.Mesh(
+new THREE.BoxGeometry(24,1.2,1.2),
+new THREE.MeshStandardMaterial({
+color:0x56615a,
+roughness:.72,
+metalness:.08
+})
 );
-sourceGate.position.set(0,7,52);
-world.add(sourceGate);
+libraryHeader.position.set(0,7.2,52);
+world.add(libraryHeader);
+
+[-12,12].forEach(x=>{
+const post=new THREE.Mesh(
+new THREE.BoxGeometry(1.4,6.6,1.4),
+new THREE.MeshStandardMaterial({
+color:0x56615a,
+roughness:.72,
+metalness:.08
+})
+);
+post.position.set(x,3.7,52);
+post.castShadow=true;
+post.receiveShadow=true;
+world.add(post);
+});
 
 
 
@@ -1291,47 +1204,6 @@ world.add(contactTower);
 
 
 
-// ===== TELEPORT PORTALS =====
-
-const portals=[];
-
-[
-[-60,0,0],
-[60,0,0]
-].forEach(pos=>{
-
-const portal=new THREE.Mesh(
-
-new THREE.TorusGeometry(
-3,
-.25,
-32,
-120
-),
-
-new THREE.MeshBasicMaterial({
-
-color:0x8a744a
-
-})
-
-);
-
-portal.rotation.y=
-Math.PI/2;
-
-portal.position.set(
-pos[0],
-4,
-pos[2]
-);
-
-world.add(portal);
-
-portals.push(portal);
-
-});
-
 
 
 // ===== PATH LIGHTS =====
@@ -1360,44 +1232,35 @@ world.add(light);
 
 
 
-// ===== MAIN LOGO =====
+// ===== CENTRAL LANDMARK =====
 
-const logo=new THREE.Mesh(
+const campusLandmark=new THREE.Mesh(
 
-new THREE.TorusKnotGeometry(
-3,
-.7,
-180,
-24
-),
+new THREE.BoxGeometry(7,5,7),
 
-new THREE.MeshPhysicalMaterial({
+new THREE.MeshStandardMaterial({
 
-color:0xb08d57,
+color:0x6b5b3e,
 
-metalness:.65,
+metalness:.2,
 
-roughness:.22,
-
-emissive:0x3a2d16,
-
-emissiveIntensity:.12
+roughness:.55
 
 })
 
 );
 
-logo.position.set(
-0,
-15,
-0
-);
+campusLandmark.position.set(0,3.1,0);
+campusLandmark.castShadow=true;
+campusLandmark.receiveShadow=true;
+campusLandmark.userData.title="LogicNest Portfolio Campus";
+campusLandmark.userData.description="A clean portfolio map organized into project studios and a source-code library. Walk to each room and press E to read what the system does.";
+world.add(campusLandmark);
+interactables.push(campusLandmark);
 
-logo.castShadow=true;
-
-world.add(logo);
-
-interactables.push(logo);
+const landmarkLabel=createTextSprite("LOGICNEST", "#f1d28a");
+landmarkLabel.position.set(0,8.2,0);
+world.add(landmarkLabel);
 // ===== PART 3E : INTERACTION =====
 
 const raycaster = new THREE.Raycaster();
@@ -1624,62 +1487,5 @@ selectedObject.userData.description ||
 
 });
 // ===== PART 3F : FINAL EFFECTS =====
-
-const cloudGroup=new THREE.Group();
-
-scene.add(cloudGroup);
-
-for(let i=0;i<4;i++){
-
-const cloud=new THREE.Mesh(
-
-new THREE.SphereGeometry(
-Math.random()*2+2,
-16,
-16
-),
-
-new THREE.MeshBasicMaterial({
-
-color:0xffffff,
-
-transparent:true,
-
-opacity:.05
-
-})
-
-);
-
-cloud.position.set(
-
-(Math.random()-.5)*350,
-
-Math.random()*50+30,
-
-(Math.random()-.5)*350
-
-);
-
-cloud.userData.speed=
-Math.random()*.05+.02;
-
-cloudGroup.add(cloud);
-
-}
-
-
-
-const portalLights=[];
-
-scene.traverse(obj=>{
-
-if(obj.type==="PointLight"){
-
-portalLights.push(obj);
-
-}
-
-});
 
 animate();
