@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LogicNest 3D Portfolio</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div id="loading">
+
+<div class="loaderLogo">
+LOGICNEST
+</div>
+
+<div class="loaderText">
+Loading 3D World...
+</div>
+
+<div class="loaderBar">
+
+<div class="loaderFill"></div>
+
+</div>
+
+</div>
+
+<div id="hud">
+
+<div class="logo">
+LogicNest
+</div>
+
+<div class="fps">
+FPS
+<span id="fpsCounter">0</span>
+</div>
+
+<div class="location">
+AREA
+<span id="currentArea">
+Spawn
+</span>
+</div>
+
+</div>
+
+<div id="crosshair"></div>
+
+<div id="interaction">
+
+Press <b>E</b> to interact
+
+</div>
+
+<div id="projectPopup">
+
+<h1 id="projectTitle"></h1>
+
+<p id="projectDescription"></p>
+
+<button id="closePopup">
+
+Close
+
+</button>
+
+</div>
+
+<canvas id="bg"></canvas>
+
+<script type="importmap">
+{
+"imports":{
+"three":"https://unpkg.com/three@0.179.1/build/three.module.js",
+"three/addons/":"https://unpkg.com/three@0.179.1/examples/jsm/"
+}
+}
+</script>
+
+<script type="module" src="main.js"></script>
+
+</body>
+
+</html>
