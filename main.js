@@ -226,7 +226,7 @@ window.innerHeight
 
 });
 
-});
+);
 const keys={};
 
 let canJump=false;
