@@ -651,28 +651,63 @@ canopy.castShadow=true;
 world.add(canopy);
 });
 
-[
-{ x:0,z:-43,w:96,d:1.2 },
-{ x:0,z:7,w:96,d:1.2 },
-{ x:-49,z:-18,w:1.2,d:50 },
-{ x:49,z:-18,w:1.2,d:50 },
-{ x:0,z:43,w:80,d:1.2 },
-{ x:0,z:86,w:80,d:1.2 },
-{ x:-41,z:64,w:1.2,d:43 },
-{ x:41,z:64,w:1.2,d:43 }
-].forEach(wall=>{
-const lowWall=new THREE.Mesh(
-new THREE.BoxGeometry(wall.w,1.1,wall.d),
+const bollardMaterial=new THREE.MeshStandardMaterial({
+color:0x8a744a,
+roughness:.68,
+metalness:.18
+});
+
+for(let x=-44;x<=44;x+=11){
+[-41,5,45,84].forEach(z=>{
+const bollard=new THREE.Mesh(
+new THREE.CylinderGeometry(.45,.55,1.4,18),
+bollardMaterial
+);
+bollard.position.set(x,.8,z);
+bollard.castShadow=true;
+bollard.receiveShadow=true;
+world.add(bollard);
+});
+}
+
+[-48,48].forEach(x=>{
+for(let z=-36;z<=0;z+=9){
+const bollard=new THREE.Mesh(
+new THREE.CylinderGeometry(.45,.55,1.4,18),
+bollardMaterial
+);
+bollard.position.set(x,.8,z);
+bollard.castShadow=true;
+bollard.receiveShadow=true;
+world.add(bollard);
+}
+});
+
+[-34,34].forEach(x=>{
+for(let z=50;z<=78;z+=9){
+const flowerBed=new THREE.Mesh(
+new THREE.CylinderGeometry(2.2,2.5,.45,24),
 new THREE.MeshStandardMaterial({
-color:0x56615a,
-roughness:.7,
-metalness:.08
+color:0x4c5f4d,
+roughness:.85
 })
 );
-lowWall.position.set(wall.x,.62,wall.z);
-lowWall.castShadow=true;
-lowWall.receiveShadow=true;
-world.add(lowWall);
+flowerBed.position.set(x,.3,z);
+flowerBed.receiveShadow=true;
+world.add(flowerBed);
+
+const flowers=new THREE.Mesh(
+new THREE.SphereGeometry(1.15,16,10),
+new THREE.MeshStandardMaterial({
+color:0xd8c690,
+roughness:.7
+})
+);
+flowers.scale.y=.35;
+flowers.position.set(x,.78,z);
+flowers.castShadow=true;
+world.add(flowers);
+}
 });
 
 
@@ -828,14 +863,15 @@ world.add(base);
 
 
 
-// Building
+// Pavilion
 
 const building=new THREE.Mesh(
 
-new THREE.BoxGeometry(
-8,
-8,
-8
+new THREE.CylinderGeometry(
+4.2,
+4.8,
+7.2,
+32
 ),
 
 new THREE.MeshStandardMaterial({
@@ -864,33 +900,27 @@ world.add(building);
 
 
 
-// Architectural trim
+// Architectural columns
 
-const edges=new THREE.LineSegments(
-
-new THREE.EdgesGeometry(
-
-new THREE.BoxGeometry(
-8.05,
-8.05,
-8.05
-)
-
-),
-
-new THREE.LineBasicMaterial({
-
-color:project.color
-
+for(let columnIndex=0;columnIndex<8;columnIndex++){
+const angle=(Math.PI*2/8)*columnIndex;
+const column=new THREE.Mesh(
+new THREE.CylinderGeometry(.28,.32,7.6,14),
+new THREE.MeshStandardMaterial({
+color:0xd8c690,
+roughness:.62,
+metalness:.08
 })
-
 );
-
-edges.position.copy(
-building.position
+column.position.set(
+project.x+Math.cos(angle)*4.35,
+4.7,
+project.z+Math.sin(angle)*4.35
 );
-
-world.add(edges);
+column.castShadow=true;
+column.receiveShadow=true;
+world.add(column);
+}
 
 const roof=new THREE.Mesh(
 new THREE.ConeGeometry(6.2,2.4,4),
@@ -979,6 +1009,19 @@ const projectLabel=createTextSprite(project.title);
 projectLabel.position.set(project.x,12.5,project.z+4.4);
 world.add(projectLabel);
 
+const banner=new THREE.Mesh(
+new THREE.PlaneGeometry(3.2,5),
+new THREE.MeshStandardMaterial({
+color:project.color,
+roughness:.65,
+metalness:.03,
+side:THREE.DoubleSide
+})
+);
+banner.position.set(project.x-5.2,5.4,project.z+1.4);
+banner.rotation.y=Math.PI/8;
+world.add(banner);
+
 
 
 // Accent light
@@ -1044,7 +1087,7 @@ z:62
 sourceScripts.forEach(script=>{
 
 const terminal=new THREE.Mesh(
-new THREE.BoxGeometry(10,4.2,3.2),
+new THREE.CylinderGeometry(4.2,4.8,2.2,32),
 new THREE.MeshStandardMaterial({
 color:0x263238,
 emissive:script.color,
@@ -1054,7 +1097,7 @@ roughness:.32
 })
 );
 
-terminal.position.set(script.x,3.1,script.z);
+terminal.position.set(script.x,1.9,script.z);
 terminal.castShadow=true;
 terminal.receiveShadow=true;
 terminal.userData.title=script.title;
@@ -1063,14 +1106,15 @@ world.add(terminal);
 interactables.push(terminal);
 
 const screen=new THREE.Mesh(
-new THREE.BoxGeometry(8.2,3.6,.22),
+new THREE.PlaneGeometry(7.6,3.2),
 new THREE.MeshStandardMaterial({
 color:0xe7ddc7,
 metalness:.05,
-roughness:.78
+roughness:.78,
+side:THREE.DoubleSide
 })
 );
-screen.position.set(script.x,4.6,script.z-1.08);
+screen.position.set(script.x,4.6,script.z-2.42);
 screen.userData.title=terminal.userData.title;
 screen.userData.description=terminal.userData.description;
 world.add(screen);
@@ -1101,19 +1145,20 @@ world.add(codeLight);
 });
 
 const libraryHeader=new THREE.Mesh(
-new THREE.BoxGeometry(24,1.2,1.2),
+new THREE.CylinderGeometry(.65,.65,24,18),
 new THREE.MeshStandardMaterial({
 color:0x56615a,
 roughness:.72,
 metalness:.08
 })
 );
+libraryHeader.rotation.z=Math.PI/2;
 libraryHeader.position.set(0,7.2,52);
 world.add(libraryHeader);
 
 [-12,12].forEach(x=>{
 const post=new THREE.Mesh(
-new THREE.BoxGeometry(1.4,6.6,1.4),
+new THREE.CylinderGeometry(.65,.8,6.6,18),
 new THREE.MeshStandardMaterial({
 color:0x56615a,
 roughness:.72,
@@ -1234,23 +1279,38 @@ world.add(light);
 
 // ===== CENTRAL LANDMARK =====
 
-const campusLandmark=new THREE.Mesh(
-
-new THREE.BoxGeometry(7,5,7),
-
+const fountainBase=new THREE.Mesh(
+new THREE.CylinderGeometry(7.2,7.8,.8,56),
 new THREE.MeshStandardMaterial({
-
-color:0x6b5b3e,
-
-metalness:.2,
-
-roughness:.55
-
+color:0x56615a,
+metalness:.12,
+roughness:.62
 })
-
 );
+fountainBase.position.set(0,.45,0);
+fountainBase.receiveShadow=true;
+world.add(fountainBase);
 
-campusLandmark.position.set(0,3.1,0);
+const fountainWater=new THREE.Mesh(
+new THREE.CylinderGeometry(5.7,5.7,.22,56),
+new THREE.MeshStandardMaterial({
+color:0x6f8f94,
+metalness:.05,
+roughness:.18
+})
+);
+fountainWater.position.set(0,.98,0);
+world.add(fountainWater);
+
+const campusLandmark=new THREE.Mesh(
+new THREE.CylinderGeometry(1.4,2.1,5.4,24),
+new THREE.MeshStandardMaterial({
+color:0x6b5b3e,
+metalness:.2,
+roughness:.55
+})
+);
+campusLandmark.position.set(0,3.8,0);
 campusLandmark.castShadow=true;
 campusLandmark.receiveShadow=true;
 campusLandmark.userData.title="LogicNest Portfolio Campus";
@@ -1258,8 +1318,20 @@ campusLandmark.userData.description="A clean portfolio map organized into projec
 world.add(campusLandmark);
 interactables.push(campusLandmark);
 
+const fountainTop=new THREE.Mesh(
+new THREE.SphereGeometry(1.25,24,16),
+new THREE.MeshStandardMaterial({
+color:0xd8c690,
+metalness:.22,
+roughness:.42
+})
+);
+fountainTop.position.set(0,6.75,0);
+fountainTop.castShadow=true;
+world.add(fountainTop);
+
 const landmarkLabel=createTextSprite("LOGICNEST", "#f1d28a");
-landmarkLabel.position.set(0,8.2,0);
+landmarkLabel.position.set(0,9.1,0);
 world.add(landmarkLabel);
 // ===== PART 3E : INTERACTION =====
 
