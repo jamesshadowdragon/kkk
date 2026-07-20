@@ -96,7 +96,7 @@ controls.lock();
 );
 
 scene.add(
-controls.getObject()
+controls.object
 );
 
 const ambient =
@@ -446,7 +446,6 @@ composer.render();
 
 }
 
-animate();
 // ===== PART 3C : WORLD =====
 
 const worldFloor = new THREE.Mesh(
@@ -1263,3 +1262,5 @@ portalLights.push(obj);
 }
 
 });
+
+animate();
