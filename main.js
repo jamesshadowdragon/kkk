@@ -210,6 +210,22 @@ window.innerWidth,
 window.innerHeight
 );
 
+renderer.setPixelRatio(
+Math.min(window.devicePixelRatio,2)
+);
+
+composer.setSize(
+window.innerWidth,
+window.innerHeight
+);
+
+bloom.setSize(
+window.innerWidth,
+window.innerHeight
+);
+
+});
+
 });
 const keys={};
 
