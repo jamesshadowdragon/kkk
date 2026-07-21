@@ -10,11 +10,11 @@ const canvas = document.getElementById("bg");
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x050510);
+scene.background = new THREE.Color(0x050505);
 
 scene.fog = new THREE.FogExp2(
-0x050510,
-0.012
+0x050505,
+0.009
 );
 
 const camera = new THREE.PerspectiveCamera(
@@ -73,9 +73,9 @@ window.innerWidth,
 window.innerHeight
 ),
 
-0.9,
-0.4,
-0.15
+0.08,
+0.12,
+0.8
 
 );
 
@@ -96,7 +96,7 @@ controls.lock();
 );
 
 scene.add(
-controls.getObject()
+controls.object
 );
 
 const ambient =
@@ -141,9 +141,9 @@ sun
 
 const purpleLight =
 new THREE.PointLight(
-0x8b5cf6,
-120,
-60
+0xffffff,
+34,
+48
 );
 
 purpleLight.position.set(
@@ -158,9 +158,9 @@ purpleLight
 
 const blueLight =
 new THREE.PointLight(
-0x4f46e5,
-80,
-60
+0xcccccc,
+28,
+52
 );
 
 blueLight.position.set(
@@ -194,6 +194,73 @@ velocity:new THREE.Vector3(),
 direction:new THREE.Vector3()
 
 };
+
+const loadingScreen =
+document.getElementById("loading");
+
+let hasHiddenLoadingScreen=false;
+
+
+function createTextSprite(text, color="#ffffff"){
+
+const labelCanvas =
+document.createElement("canvas");
+
+labelCanvas.width=512;
+labelCanvas.height=128;
+
+const context=
+labelCanvas.getContext("2d");
+
+context.fillStyle="rgba(0,0,0,.86)";
+context.fillRect(0,0,labelCanvas.width,labelCanvas.height);
+context.strokeStyle=color;
+context.lineWidth=6;
+context.strokeRect(8,8,labelCanvas.width-16,labelCanvas.height-16);
+context.fillStyle=color;
+context.font="700 42px Space Grotesk, sans-serif";
+context.textAlign="center";
+context.textBaseline="middle";
+context.fillText(text,labelCanvas.width/2,labelCanvas.height/2);
+
+const texture=
+new THREE.CanvasTexture(labelCanvas);
+texture.colorSpace=THREE.SRGBColorSpace;
+
+const sprite=
+new THREE.Sprite(
+new THREE.SpriteMaterial({
+map:texture,
+transparent:true
+})
+);
+
+sprite.scale.set(12,3,1);
+
+return sprite;
+
+}
+
+function hideLoadingScreen(){
+
+if(hasHiddenLoadingScreen || !loadingScreen)
+return;
+
+hasHiddenLoadingScreen=true;
+
+loadingScreen.classList.add("hidden");
+
+loadingScreen.addEventListener(
+"transitionend",
+()=>{
+
+loadingScreen.remove();
+
+},
+{ once:true }
+);
+
+}
 
 window.addEventListener(
 "resize",
@@ -368,26 +435,13 @@ clock.getDelta();
 
 updatePlayer(delta);
 
+updateWorldHud(delta);
+
 purpleLight.position.x=
 camera.position.x;
 
 purpleLight.position.z=
 camera.position.z;
-
-// Clouds
-
-cloudGroup.children.forEach(cloud=>{
-
-cloud.position.x +=
-cloud.userData.speed;
-
-if(cloud.position.x>180){
-
-cloud.position.x=-180;
-
-}
-
-});
 
 
 
@@ -410,43 +464,12 @@ scene.fog.density=
 .01+
 Math.cos(cycle)*.002;
 
-
-
-// Portal glow
-
-portalLights.forEach(light=>{
-
-light.intensity=
-light.intensity+
-Math.sin(
-clock.elapsedTime*4
-)*.15;
-
-});
-
-
-
-// Floating logo
-
-logo.rotation.y +=
-0.01;
-
-logo.rotation.x +=
-0.003;
-
-logo.position.y=
-15+
-Math.sin(
-clock.elapsedTime
-)*.8;
-
-
-
 composer.render();
+
+hideLoadingScreen();
 
 }
 
-animate();
 // ===== PART 3C : WORLD =====
 
 const worldFloor = new THREE.Mesh(
@@ -460,7 +483,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x202030,
+color:0x0a0a0a,
 
 roughness:.95,
 
@@ -489,7 +512,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x34345c,
+color:0xffffff,
 
 metalness:.35,
 
@@ -512,19 +535,185 @@ world.add(spawnPlatform);
 const grid = new THREE.GridHelper(
 40,
 40,
-0x8b5cf6,
-0x2b2b45
+0xffffff,
+0x333333
 );
 
 grid.position.y=.02;
 
 world.add(grid);
 
+const pathMaterial=
+new THREE.MeshStandardMaterial({
+
+color:0xf5f5f5,
+
+emissive:0x000000,
+
+emissiveIntensity:0,
+
+metalness:.08,
+
+roughness:.82
+
+});
+
+[
+{ x:0,z:-10,w:140,d:4 },
+{ x:0,z:12,w:118,d:3 },
+{ x:-45,z:18,w:3,d:38 },
+{ x:45,z:18,w:3,d:38 },
+{ x:0,z:38,w:96,d:4 },
+{ x:0,z:58,w:4,d:40 }
+].forEach(path=>{
+
+const walkway=new THREE.Mesh(
+
+new THREE.BoxGeometry(path.w,.18,path.d),
+
+pathMaterial
+
+);
+
+walkway.position.set(path.x,.14,path.z);
+walkway.receiveShadow=true;
+world.add(walkway);
+
+});
+
+[
+{ x:0,z:-20,r:42,color:0x111111 },
+{ x:0,z:64,r:38,color:0x181818 }
+].forEach(plaza=>{
+const plazaMesh=new THREE.Mesh(
+new THREE.CylinderGeometry(plaza.r,plaza.r,.16,80),
+new THREE.MeshStandardMaterial({
+color:plaza.color,
+metalness:.2,
+roughness:.62
+})
+);
+plazaMesh.position.set(plaza.x,.08,plaza.z);
+plazaMesh.receiveShadow=true;
+world.add(plazaMesh);
+});
+
+const districtSign=createTextSprite("WORK GALLERY","#ffffff");
+districtSign.position.set(0,14,-32);
+world.add(districtSign);
+
+const sourceSign=createTextSprite("CODE LIBRARY","#ffffff");
+sourceSign.position.set(0,13,70);
+world.add(sourceSign);
+
+const planterMaterial=new THREE.MeshStandardMaterial({
+color:0xffffff,
+roughness:.9,
+metalness:.04
+});
+
+const trunkMaterial=new THREE.MeshStandardMaterial({
+color:0x222222,
+roughness:.86
+});
+
+const canopyMaterial=new THREE.MeshStandardMaterial({
+color:0xeeeeee,
+roughness:.8
+});
+
+[
+[-50,-36],[-25,-38],[25,-38],[50,-36],
+[-50,-4],[50,-4],[-36,46],[36,46],[-36,82],[36,82]
+].forEach(([x,z])=>{
+const planter=new THREE.Mesh(
+new THREE.CylinderGeometry(3.2,3.5,.7,28),
+planterMaterial
+);
+planter.position.set(x,.4,z);
+planter.receiveShadow=true;
+world.add(planter);
+
+const trunk=new THREE.Mesh(
+new THREE.CylinderGeometry(.35,.5,3.2,12),
+trunkMaterial
+);
+trunk.position.set(x,2.1,z);
+trunk.castShadow=true;
+world.add(trunk);
+
+const canopy=new THREE.Mesh(
+new THREE.SphereGeometry(2.2,18,14),
+canopyMaterial
+);
+canopy.position.set(x,4.2,z);
+canopy.castShadow=true;
+world.add(canopy);
+});
+
+const bollardMaterial=new THREE.MeshStandardMaterial({
+color:0xffffff,
+roughness:.68,
+metalness:.18
+});
+
+for(let x=-44;x<=44;x+=11){
+[-41,5,45,84].forEach(z=>{
+const bollard=new THREE.Mesh(
+new THREE.CylinderGeometry(.45,.55,1.4,18),
+bollardMaterial
+);
+bollard.position.set(x,.8,z);
+bollard.castShadow=true;
+bollard.receiveShadow=true;
+world.add(bollard);
+});
+}
+
+[-48,48].forEach(x=>{
+for(let z=-36;z<=0;z+=9){
+const bollard=new THREE.Mesh(
+new THREE.CylinderGeometry(.45,.55,1.4,18),
+bollardMaterial
+);
+bollard.position.set(x,.8,z);
+bollard.castShadow=true;
+bollard.receiveShadow=true;
+world.add(bollard);
+}
+});
+
+[-34,34].forEach(x=>{
+for(let z=50;z<=78;z+=9){
+const flowerBed=new THREE.Mesh(
+new THREE.CylinderGeometry(2.2,2.5,.45,24),
+new THREE.MeshStandardMaterial({
+color:0x111111,
+roughness:.85
+})
+);
+flowerBed.position.set(x,.3,z);
+flowerBed.receiveShadow=true;
+world.add(flowerBed);
+
+const flowers=new THREE.Mesh(
+new THREE.SphereGeometry(1.15,16,10),
+new THREE.MeshStandardMaterial({
+color:0xffffff,
+roughness:.7
+})
+);
+flowers.scale.y=.35;
+flowers.position.set(x,.78,z);
+flowers.castShadow=true;
+world.add(flowers);
+}
+});
 
 
 // Rocks
 
-for(let i=0;i<90;i++){
+for(let i=0;i<18;i++){
 
 const rock=new THREE.Mesh(
 
@@ -534,7 +723,7 @@ Math.random()*2+.8
 
 new THREE.MeshStandardMaterial({
 
-color:0x45455d,
+color:0x2a2a2a,
 
 roughness:1
 
@@ -572,115 +761,6 @@ world.add(rock);
 
 
 
-// Floating crystals
-
-for(let i=0;i<60;i++){
-
-const crystal=new THREE.Mesh(
-
-new THREE.OctahedronGeometry(
-Math.random()*.7+.4
-),
-
-new THREE.MeshPhysicalMaterial({
-
-color:0x8b5cf6,
-
-emissive:0x8b5cf6,
-
-emissiveIntensity:1,
-
-metalness:1,
-
-roughness:.1,
-
-transparent:true,
-
-opacity:.9
-
-})
-
-);
-
-crystal.position.set(
-
-(Math.random()-.5)*120,
-
-Math.random()*18+3,
-
-(Math.random()-.5)*120
-
-);
-
-crystal.userData.speed=
-
-Math.random()*.8+.2;
-
-world.add(crystal);
-
-interactables.push(crystal);
-
-}
-
-
-
-// Stars
-
-const starGeometry=
-new THREE.BufferGeometry();
-
-const starCount=7000;
-
-const starArray=
-new Float32Array(
-starCount*3
-);
-
-for(let i=0;i<starCount;i++){
-
-const j=i*3;
-
-starArray[j]=(Math.random()-.5)*1800;
-
-starArray[j+1]=(Math.random()-.5)*900;
-
-starArray[j+2]=(Math.random()-.5)*1800;
-
-}
-
-starGeometry.setAttribute(
-
-"position",
-
-new THREE.BufferAttribute(
-starArray,
-3
-)
-
-);
-
-const stars=new THREE.Points(
-
-starGeometry,
-
-new THREE.PointsMaterial({
-
-color:0xffffff,
-
-size:.8,
-
-transparent:true,
-
-opacity:.9,
-
-depthWrite:false
-
-})
-
-);
-
-scene.add(stars);
-
 
 
 // Sky dome
@@ -695,7 +775,7 @@ new THREE.SphereGeometry(
 
 new THREE.MeshBasicMaterial({
 
-color:0x090918,
+color:0x000000,
 
 side:THREE.BackSide
 
@@ -706,70 +786,39 @@ side:THREE.BackSide
 scene.add(sky);
 
 
-
-// Fog rings
-
-for(let i=0;i<12;i++){
-
-const ring=new THREE.Mesh(
-
-new THREE.TorusGeometry(
-35+i*8,
-.18,
-16,
-220
-),
-
-new THREE.MeshBasicMaterial({
-
-color:0x8b5cf6,
-
-transparent:true,
-
-opacity:.08
-
-})
-
-);
-
-ring.rotation.x=
-Math.PI/2;
-
-ring.position.y=
-i*.25+.05;
-
-world.add(ring);
-
-}
 // ===== PART 3D : PORTFOLIO DISTRICT =====
 
 const projects = [
 
 {
 title:"Combat Framework",
-color:0x8b5cf6,
-x:-30,
+description:"A production-style Roblox combat framework focused on server-authoritative hit validation, modular ability definitions, cooldown tracking, animation/sound hooks, and responsive client feedback. Built to be extended for melee, ranged, and special-skill game modes without rewriting the core loop.",
+color:0xffffff,
+x:-36,
 z:-20
 },
 
 {
 title:"Inventory System",
-color:0x4f46e5,
-x:0,
+description:"A scalable inventory and equipment architecture with clean item metadata, stack handling, hotbar-ready updates, save/load integration, and UI-friendly events. Designed for reliability, easy item balancing, and minimal data loss during player joins and leaves.",
+color:0xd8d8d8,
+x:-12,
 z:-20
 },
 
 {
-title:"RTS Unit AI",
-color:0xa855f7,
-x:30,
+title:"RTS Unit Logic",
+description:"A commandable unit-control system featuring selection groups, move/attack orders, target prioritization, state-based behaviors, and formation-friendly pathing. Useful for strategy, tower-defense, and squad-control Roblox experiences.",
+color:0xbdbdbd,
+x:12,
 z:-20
 },
 
 {
-title:"Traffic AI",
-color:0x6366f1,
-x:60,
+title:"Traffic Simulation",
+description:"A city traffic simulation using waypoint lanes, stop points, spacing checks, and route decisions to create believable movement. Built for open-world maps that need traffic flow without overwhelming the server or client.",
+color:0x8f8f8f,
+x:36,
 z:-20
 }
 
@@ -792,7 +841,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x2b2b40,
+color:0xffffff,
 
 metalness:.4,
 
@@ -814,19 +863,20 @@ world.add(base);
 
 
 
-// Building
+// Pavilion
 
 const building=new THREE.Mesh(
 
-new THREE.BoxGeometry(
-8,
-8,
-8
+new THREE.CylinderGeometry(
+4.2,
+4.8,
+7.2,
+32
 ),
 
 new THREE.MeshStandardMaterial({
 
-color:0x19192d,
+color:0x111111,
 
 metalness:.25,
 
@@ -850,84 +900,179 @@ world.add(building);
 
 
 
-// Neon edges
+// Architectural columns
 
-const edges=new THREE.LineSegments(
+for(let columnIndex=0;columnIndex<8;columnIndex++){
+const angle=(Math.PI*2/8)*columnIndex;
+const column=new THREE.Mesh(
+new THREE.CylinderGeometry(.28,.32,7.6,14),
+new THREE.MeshStandardMaterial({
+color:0xffffff,
+roughness:.62,
+metalness:.08
+})
+);
+column.position.set(
+project.x+Math.cos(angle)*4.35,
+4.7,
+project.z+Math.sin(angle)*4.35
+);
+column.castShadow=true;
+column.receiveShadow=true;
+world.add(column);
+}
 
-new THREE.EdgesGeometry(
+const exhibitStand=new THREE.Mesh(
+new THREE.CylinderGeometry(1.35,1.6,2.1,28),
+new THREE.MeshStandardMaterial({
+color:0xffffff,
+roughness:.58,
+metalness:.08
+})
+);
+exhibitStand.position.set(project.x,2.1,project.z+1.2);
+exhibitStand.castShadow=true;
+exhibitStand.receiveShadow=true;
+world.add(exhibitStand);
+
+const exhibitCore=new THREE.Mesh(
+new THREE.SphereGeometry(.9,24,16),
+new THREE.MeshStandardMaterial({
+color:0x000000,
+roughness:.45,
+metalness:.18
+})
+);
+exhibitCore.position.set(project.x,3.6,project.z+1.2);
+exhibitCore.castShadow=true;
+world.add(exhibitCore);
+
+const entryMat=new THREE.MeshStandardMaterial({
+color:0xffffff,
+roughness:.72,
+metalness:.04
+});
+[-1.8,1.8].forEach(offset=>{
+const entryPost=new THREE.Mesh(
+new THREE.CylinderGeometry(.24,.3,3.6,14),
+entryMat
+);
+entryPost.position.set(project.x+offset,2.6,project.z+4.55);
+entryPost.castShadow=true;
+world.add(entryPost);
+});
+
+const roof=new THREE.Mesh(
+new THREE.ConeGeometry(6.2,2.4,4),
+new THREE.MeshStandardMaterial({
+color:project.color,
+emissive:project.color,
+emissiveIntensity:.03,
+metalness:.25,
+roughness:.4
+})
+);
+roof.position.set(project.x,10.2,project.z);
+roof.rotation.y=Math.PI/4;
+roof.castShadow=true;
+world.add(roof);
+
+const roomGlow=new THREE.Mesh(
+new THREE.BoxGeometry(9.5,.18,9.5),
+new THREE.MeshBasicMaterial({
+color:project.color,
+transparent:true,
+opacity:.12
+})
+);
+roomGlow.position.set(project.x,1.08,project.z);
+world.add(roomGlow);
+
+for(let stripe=-2;stripe<=2;stripe+=2){
+const windowStrip=new THREE.Mesh(
+new THREE.BoxGeometry(1.1,5.2,.12),
+new THREE.MeshBasicMaterial({
+color:project.color,
+transparent:true,
+opacity:.42
+})
+);
+windowStrip.position.set(project.x+stripe,5.4,project.z+4.08);
+world.add(windowStrip);
+}
+
+
+
+// Information plaque
+
+const plaque=new THREE.Mesh(
 
 new THREE.BoxGeometry(
-8.05,
-8.05,
-8.05
-)
-
+6.6,
+3.2,
+.28
 ),
 
-new THREE.LineBasicMaterial({
+new THREE.MeshStandardMaterial({
 
-color:project.color
+color:0xffffff,
+
+metalness:.08,
+
+roughness:.72
 
 })
 
 );
 
-edges.position.copy(
-building.position
-);
-
-world.add(edges);
-
-
-
-// Hologram
-
-const hologram=new THREE.Mesh(
-
-new THREE.PlaneGeometry(
-6,
-3.5
-),
-
-new THREE.MeshBasicMaterial({
-
-color:project.color,
-
-transparent:true,
-
-opacity:.8,
-
-side:THREE.DoubleSide
-
-})
-
-);
-
-hologram.position.set(
+plaque.position.set(
 
 project.x,
 
-9,
+4.2,
 
-project.z+4.05
+project.z+4.16
 
 );
 
-world.add(hologram);
+plaque.userData.title=project.title;
+plaque.userData.description=project.description;
+building.userData.title=project.title;
+building.userData.description=project.description;
 
-interactables.push(hologram);
+world.add(plaque);
+
+interactables.push(plaque);
+interactables.push(building);
+
+const projectLabel=createTextSprite(project.title);
+projectLabel.position.set(project.x,12.5,project.z+4.4);
+world.add(projectLabel);
+
+const banner=new THREE.Mesh(
+new THREE.PlaneGeometry(3.2,5),
+new THREE.MeshStandardMaterial({
+color:project.color,
+roughness:.65,
+metalness:.03,
+side:THREE.DoubleSide
+})
+);
+banner.position.set(project.x-5.2,5.4,project.z+1.4);
+banner.rotation.y=Math.PI/8;
+world.add(banner);
 
 
 
-// Glow
+// Accent light
 
 const glow=new THREE.PointLight(
 
 project.color,
 
-35,
+9,
 
-20
+16
 
 );
 
@@ -946,6 +1091,129 @@ world.add(glow);
 });
 
 
+// ===== SOURCE CODES AREA =====
+
+const sourceScripts = [
+
+{
+title:"Datastore Save Script",
+description:"Roblox Lua datastore pattern for loading player data safely, saving on leave, and keeping default values ready.",
+code:"local DataStoreService = game:GetService('DataStoreService')\nlocal store = DataStoreService:GetDataStore('PlayerData')\n-- load, validate, save on PlayerRemoving",
+color:0xffffff,
+x:-28,
+z:62
+},
+
+{
+title:"Round System Script",
+description:"Server round loop with intermission, match timer, alive-player checks, and clean reset logic for Roblox games.",
+code:"while true do\n  runIntermission()\n  startRound()\n  finishRound()\nend",
+color:0xd9d9d9,
+x:0,
+z:68
+},
+
+{
+title:"NPC Pathfinding Script",
+description:"PathfindingService NPC controller with waypoint movement, blocked-path retries, and simple chase behavior.",
+code:"local PathfindingService = game:GetService('PathfindingService')\nlocal path = PathfindingService:CreatePath()\npath:ComputeAsync(npc.Position, target.Position)",
+color:0xbfbfbf,
+x:28,
+z:62
+}
+
+];
+
+sourceScripts.forEach(script=>{
+
+const terminal=new THREE.Mesh(
+new THREE.CylinderGeometry(4.2,4.8,2.2,32),
+new THREE.MeshStandardMaterial({
+color:0x111111,
+emissive:script.color,
+emissiveIntensity:.04,
+metalness:.45,
+roughness:.32
+})
+);
+
+terminal.position.set(script.x,1.9,script.z);
+terminal.castShadow=true;
+terminal.receiveShadow=true;
+terminal.userData.title=script.title;
+terminal.userData.description=script.description+"\n\nPreview:\n"+script.code;
+world.add(terminal);
+interactables.push(terminal);
+
+const screen=new THREE.Mesh(
+new THREE.PlaneGeometry(7.6,3.2),
+new THREE.MeshStandardMaterial({
+color:0xffffff,
+metalness:.05,
+roughness:.78,
+side:THREE.DoubleSide
+})
+);
+screen.position.set(script.x,4.6,script.z-2.42);
+screen.userData.title=terminal.userData.title;
+screen.userData.description=terminal.userData.description;
+world.add(screen);
+interactables.push(screen);
+
+const label=createTextSprite(script.title, "#ffffff");
+label.position.set(script.x,8.8,script.z-2.2);
+world.add(label);
+
+const pad=new THREE.Mesh(
+new THREE.CylinderGeometry(6.5,7.5,.65,40),
+new THREE.MeshStandardMaterial({
+color:0x0a0a0a,
+emissive:script.color,
+emissiveIntensity:.05,
+metalness:.35,
+roughness:.45
+})
+);
+pad.position.set(script.x,.35,script.z);
+pad.receiveShadow=true;
+world.add(pad);
+
+const codeLight=new THREE.PointLight(script.color,7,18);
+codeLight.position.set(script.x,5.8,script.z-3);
+world.add(codeLight);
+
+});
+
+const libraryHeader=new THREE.Mesh(
+new THREE.CylinderGeometry(.65,.65,24,18),
+new THREE.MeshStandardMaterial({
+color:0xffffff,
+roughness:.72,
+metalness:.08
+})
+);
+libraryHeader.rotation.z=Math.PI/2;
+libraryHeader.position.set(0,7.2,52);
+world.add(libraryHeader);
+
+[-12,12].forEach(x=>{
+const post=new THREE.Mesh(
+new THREE.CylinderGeometry(.65,.8,6.6,18),
+new THREE.MeshStandardMaterial({
+color:0xffffff,
+roughness:.72,
+metalness:.08
+})
+);
+post.position.set(x,3.7,52);
+post.castShadow=true;
+post.receiveShadow=true;
+world.add(post);
+});
+
+
+
+
 
 // ===== SKILLS BUILDING =====
 
@@ -960,7 +1228,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x1c1c35,
+color:0x111111,
 
 metalness:.3,
 
@@ -997,7 +1265,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x24243d,
+color:0x0f0f0f,
 
 metalness:.35,
 
@@ -1021,60 +1289,19 @@ world.add(contactTower);
 
 
 
-// ===== TELEPORT PORTALS =====
-
-const portals=[];
-
-[
-[-60,0,0],
-[60,0,0]
-].forEach(pos=>{
-
-const portal=new THREE.Mesh(
-
-new THREE.TorusGeometry(
-3,
-.25,
-32,
-120
-),
-
-new THREE.MeshBasicMaterial({
-
-color:0x8b5cf6
-
-})
-
-);
-
-portal.rotation.y=
-Math.PI/2;
-
-portal.position.set(
-pos[0],
-4,
-pos[2]
-);
-
-world.add(portal);
-
-portals.push(portal);
-
-});
-
 
 
 // ===== PATH LIGHTS =====
 
-for(let i=-60;i<=60;i+=8){
+for(let i=-56;i<=56;i+=16){
 
 const light=new THREE.PointLight(
 
-0x8b5cf6,
+0xffffff,
 
-5,
+2.5,
 
-8
+7
 
 );
 
@@ -1090,44 +1317,62 @@ world.add(light);
 
 
 
-// ===== MAIN LOGO =====
+// ===== CENTRAL LANDMARK =====
 
-const logo=new THREE.Mesh(
-
-new THREE.TorusKnotGeometry(
-3,
-.7,
-180,
-24
-),
-
-new THREE.MeshPhysicalMaterial({
-
-color:0x8b5cf6,
-
-metalness:1,
-
-roughness:.05,
-
-emissive:0x8b5cf6,
-
-emissiveIntensity:1
-
+const fountainBase=new THREE.Mesh(
+new THREE.CylinderGeometry(7.2,7.8,.8,56),
+new THREE.MeshStandardMaterial({
+color:0xffffff,
+metalness:.12,
+roughness:.62
 })
-
 );
+fountainBase.position.set(0,.45,0);
+fountainBase.receiveShadow=true;
+world.add(fountainBase);
 
-logo.position.set(
-0,
-15,
-0
+const fountainWater=new THREE.Mesh(
+new THREE.CylinderGeometry(5.7,5.7,.22,56),
+new THREE.MeshStandardMaterial({
+color:0xf2f2f2,
+metalness:.05,
+roughness:.18
+})
 );
+fountainWater.position.set(0,.98,0);
+world.add(fountainWater);
 
-logo.castShadow=true;
+const campusLandmark=new THREE.Mesh(
+new THREE.CylinderGeometry(1.4,2.1,5.4,24),
+new THREE.MeshStandardMaterial({
+color:0x000000,
+metalness:.2,
+roughness:.55
+})
+);
+campusLandmark.position.set(0,3.8,0);
+campusLandmark.castShadow=true;
+campusLandmark.receiveShadow=true;
+campusLandmark.userData.title="LogicNest Portfolio Campus";
+campusLandmark.userData.description="A clean portfolio map organized into project studios and a source-code library. Walk to each room and press E to read what the system does.";
+world.add(campusLandmark);
+interactables.push(campusLandmark);
 
-world.add(logo);
+const fountainTop=new THREE.Mesh(
+new THREE.SphereGeometry(1.25,24,16),
+new THREE.MeshStandardMaterial({
+color:0xffffff,
+metalness:.22,
+roughness:.42
+})
+);
+fountainTop.position.set(0,6.75,0);
+fountainTop.castShadow=true;
+world.add(fountainTop);
 
-interactables.push(logo);
+const landmarkLabel=createTextSprite("LOGICNEST", "#ffffff");
+landmarkLabel.position.set(0,9.1,0);
+world.add(landmarkLabel);
 // ===== PART 3E : INTERACTION =====
 
 const raycaster = new THREE.Raycaster();
@@ -1153,6 +1398,97 @@ document.getElementById("fpsCounter");
 const currentArea =
 document.getElementById("currentArea");
 
+const workSection =
+document.getElementById("workSection");
+
+const closeWorkSection =
+document.getElementById("closeWorkSection");
+
+if(workSection){
+
+workSection.addEventListener(
+"click",
+e=>{
+
+e.stopPropagation();
+
+}
+);
+
+}
+
+if(closeWorkSection && workSection){
+
+closeWorkSection.addEventListener(
+"click",
+e=>{
+
+e.stopPropagation();
+
+workSection.classList.add("closed");
+
+}
+);
+
+}
+
+document.querySelectorAll(".copyCode").forEach(button=>{
+
+button.addEventListener(
+"click",
+e=>{
+
+e.stopPropagation();
+
+const codeBlock=
+document.getElementById(button.dataset.copy);
+
+if(!codeBlock)
+return;
+
+const codeText=
+codeBlock.textContent;
+
+const markCopied=()=>{
+
+button.textContent="Copied";
+
+setTimeout(
+()=>{
+button.textContent="Copy";
+},
+1200
+);
+
+};
+
+const fallbackCopy=()=>{
+
+const textarea=document.createElement("textarea");
+textarea.value=codeText;
+document.body.appendChild(textarea);
+textarea.select();
+document.execCommand("copy");
+textarea.remove();
+markCopied();
+
+};
+
+if(navigator.clipboard){
+
+navigator.clipboard.writeText(codeText).then(markCopied).catch(fallbackCopy);
+
+}else{
+
+fallbackCopy();
+
+}
+
+}
+);
+
+});
+
 let selectedObject=null;
 
 let fpsFrames=0;
@@ -1172,6 +1508,63 @@ controls.lock();
 });
 
 
+function updateWorldHud(delta){
+
+fpsFrames++;
+fpsTime+=delta;
+
+if(fpsTime>=.5){
+
+fpsCounter.textContent=
+Math.round(fpsFrames/fpsTime);
+
+fpsFrames=0;
+fpsTime=0;
+
+}
+
+const inSourceCodes=
+camera.position.z>45 &&
+Math.abs(camera.position.x)<45;
+
+const inWorkDistrict=
+camera.position.z<2 &&
+Math.abs(camera.position.x)<78;
+
+currentArea.textContent=
+inSourceCodes
+?
+"Source Codes"
+:
+inWorkDistrict
+?
+"Portfolio Studios"
+:
+"Spawn";
+
+raycaster.setFromCamera(
+new THREE.Vector2(0,0),
+camera
+);
+
+const hits=
+raycaster.intersectObjects(interactables,false);
+
+selectedObject=
+hits.length && hits[0].distance<18
+?
+hits[0].object
+:
+null;
+
+interaction.style.opacity=
+selectedObject
+?
+"1"
+:
+"0";
+
+}
 
 window.addEventListener(
 "keydown",
@@ -1207,59 +1600,4 @@ selectedObject.userData.description ||
 });
 // ===== PART 3F : FINAL EFFECTS =====
 
-const cloudGroup=new THREE.Group();
-
-scene.add(cloudGroup);
-
-for(let i=0;i<40;i++){
-
-const cloud=new THREE.Mesh(
-
-new THREE.SphereGeometry(
-Math.random()*2+2,
-16,
-16
-),
-
-new THREE.MeshBasicMaterial({
-
-color:0xffffff,
-
-transparent:true,
-
-opacity:.05
-
-})
-
-);
-
-cloud.position.set(
-
-(Math.random()-.5)*350,
-
-Math.random()*50+30,
-
-(Math.random()-.5)*350
-
-);
-
-cloud.userData.speed=
-Math.random()*.05+.02;
-
-cloudGroup.add(cloud);
-
-}
-
-
-
-const portalLights=[];
-
-scene.traverse(obj=>{
-
-if(obj.type==="PointLight"){
-
-portalLights.push(obj);
-
-}
-
-});
+animate();

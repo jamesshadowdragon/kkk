@@ -11,6 +11,8 @@
 
 <link rel="stylesheet" href="style.css">
 
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23000000%27/%3E%3Cpath d=%27M16 46V18h8v21h24v7H16z%27 fill=%27%23ffffff%27/%3E%3Ccircle cx=%2747%27 cy=%2719%27 r=%276%27 fill=%27%23bdbdbd%27/%3E%3C/svg%3E">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,6 +60,154 @@ Spawn
 </div>
 
 </div>
+
+<section id="workSection">
+
+<button id="closeWorkSection" aria-label="Close work panel">×</button>
+
+<h2>My Work</h2>
+
+<p>A concise portfolio of production-style Roblox systems, each room explains the problem solved, technical focus, and gameplay value.</p>
+
+<ul>
+
+<li><strong>Combat Framework</strong><span>Server-authoritative abilities, hit validation, cooldowns, and responsive feedback.</span></li>
+
+<li><strong>Inventory System</strong><span>Item data model, equipment flow, persistence, and fast UI updates.</span></li>
+
+<li><strong>RTS Unit Logic</strong><span>Group movement, target selection, state handling, and tactical commands.</span></li>
+
+<li><strong>Traffic Simulation</strong><span>Waypoint routing, spacing rules, stops, and believable city movement.</span></li>
+
+<li><strong>Source Codes Area</strong><span>Copy-ready Lua examples for datastores, rounds, and pathfinding.</span></li>
+
+</ul>
+
+<div class="sourceCodePanel">
+
+<h3>Source Codes</h3>
+
+<article class="codeCard">
+<h4>Datastore Save Script</h4>
+<button class="copyCode" data-copy="datastoreCode">Copy</button>
+<pre id="datastoreCode"><code>local Players = game:GetService("Players")
+local DataStoreService = game:GetService("DataStoreService")
+local playerStore = DataStoreService:GetDataStore("LogicNestPlayerData")
+
+local DEFAULT_DATA = { Coins = 0, Level = 1, Inventory = {} }
+local sessionData = {}
+
+local function loadData(player)
+    local success, data = pcall(function()
+        return playerStore:GetAsync(player.UserId)
+    end)
+
+    if success and typeof(data) == "table" then
+        sessionData[player] = data
+    else
+        sessionData[player] = table.clone(DEFAULT_DATA)
+    end
+end
+
+local function saveData(player)
+    local data = sessionData[player]
+    if not data then return end
+
+    pcall(function()
+        playerStore:SetAsync(player.UserId, data)
+    end)
+
+    sessionData[player] = nil
+end
+
+Players.PlayerAdded:Connect(loadData)
+Players.PlayerRemoving:Connect(saveData)
+game:BindToClose(function()
+    for _, player in Players:GetPlayers() do
+        saveData(player)
+    end
+end)</code></pre>
+</article>
+
+<article class="codeCard">
+<h4>Round System Script</h4>
+<button class="copyCode" data-copy="roundCode">Copy</button>
+<pre id="roundCode"><code>local Players = game:GetService("Players")
+local INTERMISSION = 15
+local ROUND_TIME = 180
+
+local function broadcast(message)
+    print("[Round] " .. message)
+end
+
+local function getAlivePlayers()
+    local alive = {}
+    for _, player in Players:GetPlayers() do
+        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid and humanoid.Health &gt; 0 then
+            table.insert(alive, player)
+        end
+    end
+    return alive
+end
+
+while true do
+    for timeLeft = INTERMISSION, 1, -1 do
+        broadcast("Intermission: " .. timeLeft)
+        task.wait(1)
+    end
+
+    broadcast("Round started")
+    for timeLeft = ROUND_TIME, 1, -1 do
+        if #getAlivePlayers() &lt;= 1 then break end
+        task.wait(1)
+    end
+
+    broadcast("Round ended")
+    task.wait(5)
+end</code></pre>
+</article>
+
+<article class="codeCard">
+<h4>NPC Pathfinding Script</h4>
+<button class="copyCode" data-copy="pathfindingCode">Copy</button>
+<pre id="pathfindingCode"><code>local PathfindingService = game:GetService("PathfindingService")
+local npc = script.Parent
+local humanoid = npc:WaitForChild("Humanoid")
+local root = npc:WaitForChild("HumanoidRootPart")
+
+local function moveToTarget(targetPart)
+    local path = PathfindingService:CreatePath({ AgentRadius = 2, AgentHeight = 5 })
+    path:ComputeAsync(root.Position, targetPart.Position)
+
+    if path.Status ~= Enum.PathStatus.Success then
+        return false
+    end
+
+    for _, waypoint in path:GetWaypoints() do
+        humanoid:MoveTo(waypoint.Position)
+        if waypoint.Action == Enum.PathWaypointAction.Jump then
+            humanoid.Jump = true
+        end
+        if not humanoid.MoveToFinished:Wait(2) then
+            return false
+        end
+    end
+
+    return true
+end
+
+while task.wait(0.5) do
+    local target = workspace:FindFirstChild("Target")
+    if target then
+        moveToTarget(target)
+    end
+end</code></pre>
+</article>
+
+</div>
+
+</section>
 
 <div id="crosshair"></div>
 
