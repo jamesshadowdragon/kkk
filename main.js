@@ -10,10 +10,10 @@ const canvas = document.getElementById("bg");
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x101820);
+scene.background = new THREE.Color(0x050505);
 
 scene.fog = new THREE.FogExp2(
-0x101820,
+0x050505,
 0.009
 );
 
@@ -141,7 +141,7 @@ sun
 
 const purpleLight =
 new THREE.PointLight(
-0xd6b56d,
+0xffffff,
 34,
 48
 );
@@ -158,7 +158,7 @@ purpleLight
 
 const blueLight =
 new THREE.PointLight(
-0x86a3a3,
+0xcccccc,
 28,
 52
 );
@@ -201,7 +201,7 @@ document.getElementById("loading");
 let hasHiddenLoadingScreen=false;
 
 
-function createTextSprite(text, color="#f1d28a"){
+function createTextSprite(text, color="#ffffff"){
 
 const labelCanvas =
 document.createElement("canvas");
@@ -212,7 +212,7 @@ labelCanvas.height=128;
 const context=
 labelCanvas.getContext("2d");
 
-context.fillStyle="rgba(16,24,32,.82)";
+context.fillStyle="rgba(0,0,0,.86)";
 context.fillRect(0,0,labelCanvas.width,labelCanvas.height);
 context.strokeStyle=color;
 context.lineWidth=6;
@@ -483,7 +483,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x334139,
+color:0x0a0a0a,
 
 roughness:.95,
 
@@ -512,7 +512,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x5a655d,
+color:0xffffff,
 
 metalness:.35,
 
@@ -535,8 +535,8 @@ world.add(spawnPlatform);
 const grid = new THREE.GridHelper(
 40,
 40,
-0xc8b27a,
-0x44504a
+0xffffff,
+0x333333
 );
 
 grid.position.y=.02;
@@ -546,7 +546,7 @@ world.add(grid);
 const pathMaterial=
 new THREE.MeshStandardMaterial({
 
-color:0x4b5563,
+color:0xf5f5f5,
 
 emissive:0x000000,
 
@@ -582,8 +582,8 @@ world.add(walkway);
 });
 
 [
-{ x:0,z:-20,r:42,color:0x2f3d34 },
-{ x:0,z:64,r:38,color:0x2b3a40 }
+{ x:0,z:-20,r:42,color:0x111111 },
+{ x:0,z:64,r:38,color:0x181818 }
 ].forEach(plaza=>{
 const plazaMesh=new THREE.Mesh(
 new THREE.CylinderGeometry(plaza.r,plaza.r,.16,80),
@@ -598,27 +598,27 @@ plazaMesh.receiveShadow=true;
 world.add(plazaMesh);
 });
 
-const districtSign=createTextSprite("PORTFOLIO STUDIOS","#f1d28a");
+const districtSign=createTextSprite("WORK GALLERY","#ffffff");
 districtSign.position.set(0,14,-32);
 world.add(districtSign);
 
-const sourceSign=createTextSprite("SOURCE LIBRARY","#9fc5c0");
+const sourceSign=createTextSprite("CODE LIBRARY","#ffffff");
 sourceSign.position.set(0,13,70);
 world.add(sourceSign);
 
 const planterMaterial=new THREE.MeshStandardMaterial({
-color:0x3f4a42,
+color:0xffffff,
 roughness:.9,
 metalness:.04
 });
 
 const trunkMaterial=new THREE.MeshStandardMaterial({
-color:0x5a3f2b,
+color:0x222222,
 roughness:.86
 });
 
 const canopyMaterial=new THREE.MeshStandardMaterial({
-color:0x49624b,
+color:0xeeeeee,
 roughness:.8
 });
 
@@ -652,7 +652,7 @@ world.add(canopy);
 });
 
 const bollardMaterial=new THREE.MeshStandardMaterial({
-color:0x8a744a,
+color:0xffffff,
 roughness:.68,
 metalness:.18
 });
@@ -688,7 +688,7 @@ for(let z=50;z<=78;z+=9){
 const flowerBed=new THREE.Mesh(
 new THREE.CylinderGeometry(2.2,2.5,.45,24),
 new THREE.MeshStandardMaterial({
-color:0x4c5f4d,
+color:0x111111,
 roughness:.85
 })
 );
@@ -699,7 +699,7 @@ world.add(flowerBed);
 const flowers=new THREE.Mesh(
 new THREE.SphereGeometry(1.15,16,10),
 new THREE.MeshStandardMaterial({
-color:0xd8c690,
+color:0xffffff,
 roughness:.7
 })
 );
@@ -723,7 +723,7 @@ Math.random()*2+.8
 
 new THREE.MeshStandardMaterial({
 
-color:0x59645d,
+color:0x2a2a2a,
 
 roughness:1
 
@@ -775,7 +775,7 @@ new THREE.SphereGeometry(
 
 new THREE.MeshBasicMaterial({
 
-color:0x090918,
+color:0x000000,
 
 side:THREE.BackSide
 
@@ -793,7 +793,7 @@ const projects = [
 {
 title:"Combat Framework",
 description:"A production-style Roblox combat framework focused on server-authoritative hit validation, modular ability definitions, cooldown tracking, animation/sound hooks, and responsive client feedback. Built to be extended for melee, ranged, and special-skill game modes without rewriting the core loop.",
-color:0xb08d57,
+color:0xffffff,
 x:-36,
 z:-20
 },
@@ -801,7 +801,7 @@ z:-20
 {
 title:"Inventory System",
 description:"A scalable inventory and equipment architecture with clean item metadata, stack handling, hotbar-ready updates, save/load integration, and UI-friendly events. Designed for reliability, easy item balancing, and minimal data loss during player joins and leaves.",
-color:0x8fa08f,
+color:0xd8d8d8,
 x:-12,
 z:-20
 },
@@ -809,7 +809,7 @@ z:-20
 {
 title:"RTS Unit Logic",
 description:"A commandable unit-control system featuring selection groups, move/attack orders, target prioritization, state-based behaviors, and formation-friendly pathing. Useful for strategy, tower-defense, and squad-control Roblox experiences.",
-color:0x9a7b4f,
+color:0xbdbdbd,
 x:12,
 z:-20
 },
@@ -817,7 +817,7 @@ z:-20
 {
 title:"Traffic Simulation",
 description:"A city traffic simulation using waypoint lanes, stop points, spacing checks, and route decisions to create believable movement. Built for open-world maps that need traffic flow without overwhelming the server or client.",
-color:0x78909c,
+color:0x8f8f8f,
 x:36,
 z:-20
 }
@@ -841,7 +841,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x525b55,
+color:0xffffff,
 
 metalness:.4,
 
@@ -876,7 +876,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x2b3333,
+color:0x111111,
 
 metalness:.25,
 
@@ -907,7 +907,7 @@ const angle=(Math.PI*2/8)*columnIndex;
 const column=new THREE.Mesh(
 new THREE.CylinderGeometry(.28,.32,7.6,14),
 new THREE.MeshStandardMaterial({
-color:0xd8c690,
+color:0xffffff,
 roughness:.62,
 metalness:.08
 })
@@ -921,6 +921,46 @@ column.castShadow=true;
 column.receiveShadow=true;
 world.add(column);
 }
+
+const exhibitStand=new THREE.Mesh(
+new THREE.CylinderGeometry(1.35,1.6,2.1,28),
+new THREE.MeshStandardMaterial({
+color:0xffffff,
+roughness:.58,
+metalness:.08
+})
+);
+exhibitStand.position.set(project.x,2.1,project.z+1.2);
+exhibitStand.castShadow=true;
+exhibitStand.receiveShadow=true;
+world.add(exhibitStand);
+
+const exhibitCore=new THREE.Mesh(
+new THREE.SphereGeometry(.9,24,16),
+new THREE.MeshStandardMaterial({
+color:0x000000,
+roughness:.45,
+metalness:.18
+})
+);
+exhibitCore.position.set(project.x,3.6,project.z+1.2);
+exhibitCore.castShadow=true;
+world.add(exhibitCore);
+
+const entryMat=new THREE.MeshStandardMaterial({
+color:0xffffff,
+roughness:.72,
+metalness:.04
+});
+[-1.8,1.8].forEach(offset=>{
+const entryPost=new THREE.Mesh(
+new THREE.CylinderGeometry(.24,.3,3.6,14),
+entryMat
+);
+entryPost.position.set(project.x+offset,2.6,project.z+4.55);
+entryPost.castShadow=true;
+world.add(entryPost);
+});
 
 const roof=new THREE.Mesh(
 new THREE.ConeGeometry(6.2,2.4,4),
@@ -975,7 +1015,7 @@ new THREE.BoxGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0xe7ddc7,
+color:0xffffff,
 
 metalness:.08,
 
@@ -1059,7 +1099,7 @@ const sourceScripts = [
 title:"Datastore Save Script",
 description:"Roblox Lua datastore pattern for loading player data safely, saving on leave, and keeping default values ready.",
 code:"local DataStoreService = game:GetService('DataStoreService')\nlocal store = DataStoreService:GetDataStore('PlayerData')\n-- load, validate, save on PlayerRemoving",
-color:0x9fc5c0,
+color:0xffffff,
 x:-28,
 z:62
 },
@@ -1068,7 +1108,7 @@ z:62
 title:"Round System Script",
 description:"Server round loop with intermission, match timer, alive-player checks, and clean reset logic for Roblox games.",
 code:"while true do\n  runIntermission()\n  startRound()\n  finishRound()\nend",
-color:0xb0a06e,
+color:0xd9d9d9,
 x:0,
 z:68
 },
@@ -1077,7 +1117,7 @@ z:68
 title:"NPC Pathfinding Script",
 description:"PathfindingService NPC controller with waypoint movement, blocked-path retries, and simple chase behavior.",
 code:"local PathfindingService = game:GetService('PathfindingService')\nlocal path = PathfindingService:CreatePath()\npath:ComputeAsync(npc.Position, target.Position)",
-color:0x88a096,
+color:0xbfbfbf,
 x:28,
 z:62
 }
@@ -1089,7 +1129,7 @@ sourceScripts.forEach(script=>{
 const terminal=new THREE.Mesh(
 new THREE.CylinderGeometry(4.2,4.8,2.2,32),
 new THREE.MeshStandardMaterial({
-color:0x263238,
+color:0x111111,
 emissive:script.color,
 emissiveIntensity:.04,
 metalness:.45,
@@ -1108,7 +1148,7 @@ interactables.push(terminal);
 const screen=new THREE.Mesh(
 new THREE.PlaneGeometry(7.6,3.2),
 new THREE.MeshStandardMaterial({
-color:0xe7ddc7,
+color:0xffffff,
 metalness:.05,
 roughness:.78,
 side:THREE.DoubleSide
@@ -1120,14 +1160,14 @@ screen.userData.description=terminal.userData.description;
 world.add(screen);
 interactables.push(screen);
 
-const label=createTextSprite(script.title, "#d8c690");
+const label=createTextSprite(script.title, "#ffffff");
 label.position.set(script.x,8.8,script.z-2.2);
 world.add(label);
 
 const pad=new THREE.Mesh(
 new THREE.CylinderGeometry(6.5,7.5,.65,40),
 new THREE.MeshStandardMaterial({
-color:0x34423f,
+color:0x0a0a0a,
 emissive:script.color,
 emissiveIntensity:.05,
 metalness:.35,
@@ -1147,7 +1187,7 @@ world.add(codeLight);
 const libraryHeader=new THREE.Mesh(
 new THREE.CylinderGeometry(.65,.65,24,18),
 new THREE.MeshStandardMaterial({
-color:0x56615a,
+color:0xffffff,
 roughness:.72,
 metalness:.08
 })
@@ -1160,7 +1200,7 @@ world.add(libraryHeader);
 const post=new THREE.Mesh(
 new THREE.CylinderGeometry(.65,.8,6.6,18),
 new THREE.MeshStandardMaterial({
-color:0x56615a,
+color:0xffffff,
 roughness:.72,
 metalness:.08
 })
@@ -1188,7 +1228,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x1c1c35,
+color:0x111111,
 
 metalness:.3,
 
@@ -1225,7 +1265,7 @@ new THREE.CylinderGeometry(
 
 new THREE.MeshStandardMaterial({
 
-color:0x24243d,
+color:0x0f0f0f,
 
 metalness:.35,
 
@@ -1257,7 +1297,7 @@ for(let i=-56;i<=56;i+=16){
 
 const light=new THREE.PointLight(
 
-0xd6b56d,
+0xffffff,
 
 2.5,
 
@@ -1282,7 +1322,7 @@ world.add(light);
 const fountainBase=new THREE.Mesh(
 new THREE.CylinderGeometry(7.2,7.8,.8,56),
 new THREE.MeshStandardMaterial({
-color:0x56615a,
+color:0xffffff,
 metalness:.12,
 roughness:.62
 })
@@ -1294,7 +1334,7 @@ world.add(fountainBase);
 const fountainWater=new THREE.Mesh(
 new THREE.CylinderGeometry(5.7,5.7,.22,56),
 new THREE.MeshStandardMaterial({
-color:0x6f8f94,
+color:0xf2f2f2,
 metalness:.05,
 roughness:.18
 })
@@ -1305,7 +1345,7 @@ world.add(fountainWater);
 const campusLandmark=new THREE.Mesh(
 new THREE.CylinderGeometry(1.4,2.1,5.4,24),
 new THREE.MeshStandardMaterial({
-color:0x6b5b3e,
+color:0x000000,
 metalness:.2,
 roughness:.55
 })
@@ -1321,7 +1361,7 @@ interactables.push(campusLandmark);
 const fountainTop=new THREE.Mesh(
 new THREE.SphereGeometry(1.25,24,16),
 new THREE.MeshStandardMaterial({
-color:0xd8c690,
+color:0xffffff,
 metalness:.22,
 roughness:.42
 })
@@ -1330,7 +1370,7 @@ fountainTop.position.set(0,6.75,0);
 fountainTop.castShadow=true;
 world.add(fountainTop);
 
-const landmarkLabel=createTextSprite("LOGICNEST", "#f1d28a");
+const landmarkLabel=createTextSprite("LOGICNEST", "#ffffff");
 landmarkLabel.position.set(0,9.1,0);
 world.add(landmarkLabel);
 // ===== PART 3E : INTERACTION =====
